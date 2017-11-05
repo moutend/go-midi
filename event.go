@@ -81,32 +81,91 @@ func (e *PitchBendEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
+type AlienEvent struct {
+	deltaTime     *DeltaTime
+	metaEventType MetaEventType
+	data          []byte
+}
+
+func (e *AlienEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type TextEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *TextEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type CopyrightNoticeEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *CopyrightNoticeEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
 type Event interface {
 	DeltaTime() *DeltaTime
 }
 
-func parseEvent(stream []byte, chunkSize uint32) (*Event, error) {
+func parseEvent(stream []byte, chunkSize uint32) (Event, error) {
 	deltaTime, err := parseDeltaTime(stream)
 	if err != nil {
 		return nil, err
 	}
 
-	var event Event
 	var eventType EventType
-	var channel uint8
 
-	parameter := make([]byte, 2)
 	data := bytes.NewReader(stream)
 	sizeOfDeltaTime := int64(len(deltaTime.value))
-
 	binary.Read(io.NewSectionReader(data, sizeOfDeltaTime, 1), binary.BigEndian, &eventType)
-	binary.Read(io.NewSectionReader(data, sizeOfDeltaTime+1, 2), binary.BigEndian, &parameter[0])
 
 	if eventType == Meta {
-		return &event, nil
+		return parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
 	}
 
-	channel = uint8(eventType) & 0x0f
+	return parseNormalEvent(stream, deltaTime, eventType)
+}
+
+func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, error) {
+	var event Event
+
+	metaEventType := MetaEventType(stream[1])
+	sizeOfMetaEventData := int64(stream[2])
+	metaEventData := stream[2 : sizeOfMetaEventData+2]
+
+	switch metaEventType {
+	case Text:
+		event = &TextEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	case CopyrightNotice:
+		event = &CopyrightNoticeEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	default:
+		event = &AlienEvent{
+			deltaTime:     deltaTime,
+			metaEventType: metaEventType,
+			data:          metaEventData,
+		}
+	}
+
+	return event, nil
+}
+
+func parseNormalEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) (Event, error) {
+	var event Event
+
+	parameter := stream[1:2]
+	channel := uint8(eventType) & 0x0f
 	eventType = eventType & 0xf0
 
 	switch eventType {
@@ -157,7 +216,8 @@ func parseEvent(stream []byte, chunkSize uint32) (*Event, error) {
 			note:      uint8(parameter[0]),
 			velocity:  uint8(parameter[1]),
 		}
+	default:
 	}
 
-	return &event, nil
+	return event, nil
 }
