@@ -1,30 +1,44 @@
 package midi
 
+type ChunkId uint32
+
+const (
+	MThd ChunkId = 0x4d546864
+	MTrk ChunkId = 0x4d54726B
+)
+
 type EventType uint8
 
 const (
 	NoteOff           EventType = 0x80
 	NoteOn            EventType = 0x90
-	NoteAfterTouch    EventType = 0xA0
-	Controller        EventType = 0xB0
-	ProgramChange     EventType = 0xC0
-	ChannelAfterTouch EventType = 0xD0
-	PitchBend         EventType = 0xE0
-	NormalSysEx       EventType = 0xF0
-	EndOfNormalSysEx  EventType = 0xF7
-	Meta              EventType = 0xFF
+	NoteAfterTouch    EventType = 0xa0
+	Controller        EventType = 0xb0
+	ProgramChange     EventType = 0xc0
+	ChannelAfterTouch EventType = 0xd0
+	PitchBend         EventType = 0xe0
+	NormalSysEx       EventType = 0xf0
+	EndOfNormalSysEx  EventType = 0xf7
+	Meta              EventType = 0xff
 )
 
-type MetaEventType uint16
+type MetaEventType uint8
 
 const (
-	Text                MetaEventType = 0xFF01
-	CopyrightNotice     MetaEventType = 0xFF02
-	SequenceOrTrackName MetaEventType = 0xFF03
-	Marker              MetaEventType = 0xFF06
-	EndOfTrack          MetaEventType = 0xFF2F
-	SetTempo            MetaEventType = 0xFF51
-	TimeSignature       MetaEventType = 0xFF58
+	Text                MetaEventType = 0x01
+	CopyrightNotice     MetaEventType = 0x02
+	SequenceOrTrackName MetaEventType = 0x03
+	InstrumentName      MetaEventType = 0x04
+	Lyrics              MetaEventType = 0x05
+	Marker              MetaEventType = 0x06
+	CuePoint            MetaEventType = 0x07
+	MIDIChannelPrefix   MetaEventType = 0x20
+	EndOfTrack          MetaEventType = 0x2f
+	SetTempo            MetaEventType = 0x51
+	SMPTEOffset         MetaEventType = 0x54
+	TimeSignature       MetaEventType = 0x58
+	KeySignature        MetaEventType = 0x59
+	SequencerSpecific   MetaEventType = 0x7f
 )
 
 type Rhythm uint16
