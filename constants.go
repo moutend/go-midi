@@ -1,5 +1,23 @@
 package midi
 
+type Note uint8
+
+const (
+	C3  Note = 0x3c
+	Db3 Note = 0x3d
+	D3  Note = 0x3e
+	Eb3 Note = 0x3f
+	E3  Note = 0x40
+	F3  Note = 0x41
+	Gb3 Note = 0x42
+	G3  Note = 0x43
+	Ab3 Note = 0x44
+	A3  Note = 0x45
+	Bb3 Note = 0x46
+	B3  Note = 0x47
+	C4  Note = 0x60
+)
+
 type ChunkId uint32
 
 const (
@@ -33,12 +51,12 @@ const (
 	Marker              MetaEventType = 0x06
 	CuePoint            MetaEventType = 0x07
 	MIDIChannelPrefix   MetaEventType = 0x20
-	EndOfTrack          MetaEventType = 0x2f
 	SetTempo            MetaEventType = 0x51
 	SMPTEOffset         MetaEventType = 0x54
 	TimeSignature       MetaEventType = 0x58
 	KeySignature        MetaEventType = 0x59
 	SequencerSpecific   MetaEventType = 0x7f
+	EndOfTrack          MetaEventType = 0x2f
 )
 
 type Rhythm uint16

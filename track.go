@@ -8,33 +8,60 @@ import (
 )
 
 type Track struct {
-	Events []*Event
+	Events []Event
 }
 
-func parseTrack(stream []byte, start int64) (*Track, error) {
+func parseTrack(stream []byte) (*Track, error) {
+	var start int
+
+	sizeOfStream := len(stream)
+	track := &Track{
+		Events: []Event{},
+	}
+	for {
+		if start >= sizeOfStream {
+			break
+		}
+		event, sizeOfEvent, err := parseEvent(stream[start:])
+		if err != nil {
+			return nil, err
+		}
+
+		track.Events = append(track.Events, event)
+		start += sizeOfEvent
+
+		switch event.(type) {
+		case *EndOfTrackEvent:
+			fmt.Printf("%+v\n", track.Events)
+			return track, nil
+		}
+	}
+
+	return nil, fmt.Errorf("midi: missing end of track event")
+}
+
+func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
+	var start int64
 	var chunkId ChunkId
 	var chunkSize uint32
 
-	track := &Track{}
-	data := bytes.NewReader(stream)
+	tracks := make([]*Track, numberOfTracks)
 
-	binary.Read(io.NewSectionReader(data, start, 4), binary.BigEndian, &chunkId)
-	if chunkId != MTrk {
-		return nil, fmt.Errorf("midi: invalid track ID %v", chunkId)
+	for n := 0; n < numberOfTracks; n++ {
+		data := bytes.NewReader(stream[start:])
+		binary.Read(io.NewSectionReader(data, 0, 4), binary.BigEndian, &chunkId)
+		if chunkId != MTrk {
+			return nil, fmt.Errorf("midi: invalid track ID %v", chunkId)
+		}
+
+		binary.Read(io.NewSectionReader(data, 4, 4), binary.BigEndian, &chunkSize)
+		track, err := parseTrack(stream[start+8:])
+		if err != nil {
+			return nil, err
+		}
+		tracks[n] = track
+		start += int64(chunkSize + 8)
 	}
-
-	binary.Read(io.NewSectionReader(data, 4, 4), binary.BigEndian, &chunkSize)
-
-	return track, nil
-}
-
-func parseTracks(data []byte, size uint16) ([]*Track, error) {
-	tracks := make([]*Track, size)
-	track, err := parseTrack(data, int64(14))
-	if err != nil {
-		return nil, err
-	}
-	tracks[0] = track
 
 	return tracks, nil
 }

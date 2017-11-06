@@ -3,6 +3,7 @@ package midi
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 )
 
@@ -15,6 +16,10 @@ type NoteOffEvent struct {
 
 func (e *NoteOffEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
+}
+
+func (e *NoteOffEvent) String() string {
+	return fmt.Sprintf("&NoteOffEvent{}")
 }
 
 type NoteOnEvent struct {
@@ -100,13 +105,12 @@ func (e *TextEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-type CopyrightNoticeEvent struct {
-	deltaTime *DeltaTime
-	text      []byte
+func (e *TextEvent) Text() string {
+	return string(e.text)
 }
 
-func (e *CopyrightNoticeEvent) DeltaTime() *DeltaTime {
-	return e.deltaTime
+func (e *TextEvent) String() string {
+	return fmt.Sprintf("&TextEvent{text: \"%v\"}", string(e.text))
 }
 
 type SequenceOrTrackNameEvent struct {
@@ -116,6 +120,10 @@ type SequenceOrTrackNameEvent struct {
 
 func (e *SequenceOrTrackNameEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
+}
+
+func (e *SequenceOrTrackNameEvent) String() string {
+	return fmt.Sprintf("&SequenceOrTrackNameEvent{text: \"%v\"}", string(e.text))
 }
 
 type InstrumentNameEvent struct {
@@ -145,6 +153,10 @@ func (e *MarkerEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
+func (e *MarkerEvent) String() string {
+	return fmt.Sprintf("&MarkerEvent{text: \"%v\"}", string(e.text))
+}
+
 type CuePointEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -152,6 +164,58 @@ type CuePointEvent struct {
 
 func (e *CuePointEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
+}
+
+type SetTempoEvent struct {
+	deltaTime *DeltaTime
+	tempo     []byte
+}
+
+func (e *SetTempoEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+func (e *SetTempoEvent) String() string {
+	return fmt.Sprintf("&SetTempoEvent{}")
+}
+
+type SMPTEOffsetEvent struct {
+	deltaTime *DeltaTime
+	tempo     []byte
+}
+
+func (e *SMPTEOffsetEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+func (e *SMPTEOffsetEvent) String() string {
+	return fmt.Sprintf("&SMPTEOffsetEvent{}")
+}
+
+type TimeSignatureEvent struct {
+	deltaTime *DeltaTime
+	tempo     []byte
+}
+
+func (e *TimeSignatureEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+func (e *TimeSignatureEvent) String() string {
+	return fmt.Sprintf("&TimeSignatureEvent{}")
+}
+
+type KeySignatureEvent struct {
+	deltaTime *DeltaTime
+	tempo     []byte
+}
+
+func (e *KeySignatureEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+func (e *KeySignatureEvent) String() string {
+	return fmt.Sprintf("&KeySignatureEvent{}")
 }
 
 type EndOfTrackEvent struct {
@@ -162,14 +226,19 @@ func (e *EndOfTrackEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
+func (e *EndOfTrackEvent) String() string {
+	return "&EndOfTrackEvent{}"
+}
+
 type Event interface {
 	DeltaTime() *DeltaTime
 }
 
-func parseEvent(stream []byte) (Event, error) {
+// parseEvent reads stream and returns event and its size.
+func parseEvent(stream []byte) (Event, int, error) {
 	deltaTime, err := parseDeltaTime(stream)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var eventType EventType
@@ -182,10 +251,10 @@ func parseEvent(stream []byte) (Event, error) {
 		return parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
 	}
 
-	return parseNormalEvent(stream, deltaTime, eventType)
+	return parseMIDIControlEvent(stream, deltaTime, eventType)
 }
 
-func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, error) {
+func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
 	var event Event
 
 	metaEventType := MetaEventType(stream[1])
@@ -208,6 +277,43 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, error) {
 			deltaTime: deltaTime,
 			text:      metaEventData,
 		}
+	case InstrumentName:
+		event = &InstrumentNameEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	case Lyrics:
+		event = &LyricsEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	case Marker:
+		event = &MarkerEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	case CuePoint:
+		event = &CuePointEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	case SetTempo:
+		event = &SetTempoEvent{
+			deltaTime: deltaTime,
+			tempo:     metaEventData,
+		}
+	case SMPTEOffset:
+		event = &SMPTEOffsetEvent{
+			deltaTime: deltaTime,
+		}
+	case TimeSignature:
+		event = &TimeSignatureEvent{
+			deltaTime: deltaTime,
+		}
+	case KeySignature:
+		event = &KeySignatureEvent{
+			deltaTime: deltaTime,
+		}
 	case EndOfTrack:
 		event = &EndOfTrackEvent{
 			deltaTime: deltaTime,
@@ -220,15 +326,18 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, error) {
 		}
 	}
 
-	return event, nil
+	sizeOfEvent := len(deltaTime.value) + 3 + int(sizeOfMetaEventData)
+
+	return event, sizeOfEvent, nil
 }
 
-func parseNormalEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) (Event, error) {
+func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) (Event, int, error) {
 	var event Event
 
 	parameter := stream[1:2]
 	channel := uint8(eventType) & 0x0f
 	eventType = eventType & 0xf0
+	sizeOfMIDIControlEvent := 3
 
 	switch eventType {
 	case NoteOff:
@@ -265,12 +374,14 @@ func parseNormalEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) 
 			channel:   channel,
 			program:   uint8(parameter[0]),
 		}
+		sizeOfMIDIControlEvent = 2
 	case ChannelAfterTouch:
 		event = &ChannelAfterTouchEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
 			velocity:  uint8(parameter[0]),
 		}
+		sizeOfMIDIControlEvent = 2
 	case PitchBend:
 		event = &NoteOffEvent{
 			deltaTime: deltaTime,
@@ -278,8 +389,9 @@ func parseNormalEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) 
 			note:      uint8(parameter[0]),
 			velocity:  uint8(parameter[1]),
 		}
-	default:
 	}
 
-	return event, nil
+	sizeOfEvent := len(deltaTime.value) + sizeOfMIDIControlEvent
+
+	return event, sizeOfEvent, nil
 }

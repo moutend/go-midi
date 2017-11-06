@@ -1,17 +1,33 @@
 package midi
 
-import (
-	"fmt"
-)
-
 type DeltaTime struct {
-	value []byte
+	*Quantity
+}
+
+func (d *DeltaTime) Value() int {
+	return int(d.value[0])
+}
+
+func (d *DeltaTime) SetRawValue(value []byte) {
+	d.value = value
 }
 
 func (d *DeltaTime) serialize() []byte {
 	return d.value
 }
 
+func parseDeltaTime(stream []byte) (*DeltaTime, error) {
+	q, err := parseQuantity(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	deltaTime := &DeltaTime{q}
+
+	return deltaTime, nil
+}
+
+/*
 func parseDeltaTime(stream []byte) (*DeltaTime, error) {
 	if len(stream) == 0 {
 		return nil, fmt.Errorf("midi.parseDeltaTime: stream is empty")
@@ -38,3 +54,4 @@ func parseDeltaTime(stream []byte) (*DeltaTime, error) {
 
 	return dt, nil
 }
+*/

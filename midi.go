@@ -11,7 +11,7 @@ func Parse(stream []byte) (*MIDI, error) {
 	if err != nil {
 		return nil, err
 	}
-	tracks, err := parseTracks(stream, header.tracks)
+	tracks, err := parseTracks(stream, int(header.tracks))
 	if err != nil {
 		return nil, err
 	}
