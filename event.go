@@ -109,11 +109,64 @@ func (e *CopyrightNoticeEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
+type SequenceOrTrackNameEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *SequenceOrTrackNameEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type InstrumentNameEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *InstrumentNameEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type LyricsEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *LyricsEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type MarkerEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *MarkerEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type CuePointEvent struct {
+	deltaTime *DeltaTime
+	text      []byte
+}
+
+func (e *CuePointEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
+type EndOfTrackEvent struct {
+	deltaTime *DeltaTime
+}
+
+func (e *EndOfTrackEvent) DeltaTime() *DeltaTime {
+	return e.deltaTime
+}
+
 type Event interface {
 	DeltaTime() *DeltaTime
 }
 
-func parseEvent(stream []byte, chunkSize uint32) (Event, error) {
+func parseEvent(stream []byte) (Event, error) {
 	deltaTime, err := parseDeltaTime(stream)
 	if err != nil {
 		return nil, err
@@ -137,7 +190,7 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, error) {
 
 	metaEventType := MetaEventType(stream[1])
 	sizeOfMetaEventData := int64(stream[2])
-	metaEventData := stream[2 : sizeOfMetaEventData+2]
+	metaEventData := stream[3 : sizeOfMetaEventData+3]
 
 	switch metaEventType {
 	case Text:
@@ -149,6 +202,15 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, error) {
 		event = &CopyrightNoticeEvent{
 			deltaTime: deltaTime,
 			text:      metaEventData,
+		}
+	case SequenceOrTrackName:
+		event = &SequenceOrTrackNameEvent{
+			deltaTime: deltaTime,
+			text:      metaEventData,
+		}
+	case EndOfTrack:
+		event = &EndOfTrackEvent{
+			deltaTime: deltaTime,
 		}
 	default:
 		event = &AlienEvent{
