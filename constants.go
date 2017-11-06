@@ -50,7 +50,8 @@ const (
 	Lyrics              MetaEventType = 0x05
 	Marker              MetaEventType = 0x06
 	CuePoint            MetaEventType = 0x07
-	MIDIChannelPrefix   MetaEventType = 0x20
+	MIDIPortPrefix      MetaEventType = 0x20
+	MIDIChannelPrefix   MetaEventType = 0x21
 	SetTempo            MetaEventType = 0x51
 	SMPTEOffset         MetaEventType = 0x54
 	TimeSignature       MetaEventType = 0x58
