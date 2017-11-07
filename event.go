@@ -3,6 +3,7 @@ package midi
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 )
 
@@ -41,11 +42,12 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (Event, int,
 		return nil, 0, err
 	}
 
-	offset := 1 + len(q.value)
+	offset := len(deltaTime.value) + 1 + len(q.value)
 	sizeOfSystemExclusiveEventData := q.Int()
 	sizeOfEvent := offset + sizeOfSystemExclusiveEventData
 	event = &SystemExclusiveEvent{
-		data: stream[offset : offset+sizeOfSystemExclusiveEventData],
+		deltaTime: deltaTime,
+		data:      stream[offset : offset+sizeOfSystemExclusiveEventData],
 	}
 
 	return event, sizeOfEvent, nil
@@ -141,7 +143,7 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
 func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) (Event, int, error) {
 	var event Event
 
-	parameter := stream[1:2]
+	parameter := stream[1:3]
 	channel := uint8(eventType) & 0x0f
 	eventType = eventType & 0xf0
 	sizeOfMIDIControlEvent := 3
@@ -196,6 +198,8 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventT
 			note:      uint8(parameter[0]),
 			velocity:  uint8(parameter[1]),
 		}
+	default:
+		return nil, 0, fmt.Errorf("midi: invalid MIDI control event")
 	}
 
 	sizeOfEvent := len(deltaTime.value) + sizeOfMIDIControlEvent

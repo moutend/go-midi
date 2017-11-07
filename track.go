@@ -26,13 +26,11 @@ func parseTrack(stream []byte) (*Track, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		track.Events = append(track.Events, event)
 		start += sizeOfEvent
 
 		switch event.(type) {
 		case *EndOfTrackEvent:
-			fmt.Printf("%+v\n", track.Events)
 			return track, nil
 		}
 	}

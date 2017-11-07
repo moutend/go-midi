@@ -13,5 +13,5 @@ func (e *AlienEvent) DeltaTime() *DeltaTime {
 }
 
 func (e *AlienEvent) String() string {
-	return fmt.Sprintf("&AlienEvent{metaEventType: %x data: %v bytes}", e.metaEventType, len(e.data))
+	return fmt.Sprintf("&AlienEvent{metaEventType: 0x%x data: %v bytes}", e.metaEventType, len(e.data))
 }
