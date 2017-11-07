@@ -35,7 +35,7 @@ const (
 	ProgramChange     EventType = 0xc0
 	ChannelAfterTouch EventType = 0xd0
 	PitchBend         EventType = 0xe0
-	NormalSysEx       EventType = 0xf0
+	SystemExclusive   EventType = 0xf0
 	EndOfNormalSysEx  EventType = 0xf7
 	Meta              EventType = 0xff
 )
