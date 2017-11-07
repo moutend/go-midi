@@ -4,18 +4,16 @@ import (
 	"fmt"
 )
 
+// Quantity represents variable length quantity in MIDI.
 type Quantity struct {
 	value []byte
 }
 
-func (q *Quantity) Int() int {
-	return int(q.Uint32())
-}
-
+// Uint32 returns value as uint32.
 func (q *Quantity) Uint32() uint32 {
 	var u32 uint32
 
-	for i, b := range q.value {
+	for i, b := range q.Value() {
 		u := uint32(b) & 0x7f
 		j := len(q.value) - i - 1
 		shift := (uint32(j * 8)) - uint32(j)
@@ -26,16 +24,33 @@ func (q *Quantity) Uint32() uint32 {
 	return u32
 }
 
-func (q *Quantity) Value() int {
-	return int(q.value[0])
-}
+// Value returns value as byte slice.
+func (q *Quantity) Value() []byte {
+	if q.value == nil {
+		q.value = make([]byte, 1)
+	}
 
-func (q *Quantity) SetRawValue(value []byte) {
-	q.value = value
-}
-
-func (q *Quantity) serialize() []byte {
 	return q.value
+}
+
+// SetUint32 reads value as uint32 and sets the value of Quantity.
+func (q *Quantity) SetUint32(value uint32) error {
+	return nil
+}
+
+// SetValue reads value as byte slice and sets the value of Quantity.
+func (q *Quantity) SetValue(value []byte) error {
+	if len(value) > 4 {
+		return fmt.Errorf("midi: maximum length of byte slice is 4, but len(value) = %v", len(value))
+	}
+	q.value = value
+
+	return nil
+}
+
+// Serialize serializes value of variable length quantity.
+func (q *Quantity) Serialize() []byte {
+	return q.Value()
 }
 
 func parseQuantity(stream []byte) (*Quantity, error) {
