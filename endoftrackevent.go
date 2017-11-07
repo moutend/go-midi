@@ -10,7 +10,6 @@ func (e *EndOfTrackEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
 	}
-
 	return e.deltaTime
 }
 
@@ -19,7 +18,7 @@ func (e *EndOfTrackEvent) String() string {
 	return "&EndOfTrackEvent{}"
 }
 
-// Serialize serializes this event according to the SMF specification.
+// Serialize serializes this event.
 func (e *EndOfTrackEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
