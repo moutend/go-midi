@@ -68,7 +68,7 @@ func TestParseDeltaTime(t *testing.T) {
 			t.Fatal(err)
 		}
 		expected := stream.expected
-		actual := deltaTime.value
+		actual := deltaTime.Quantity().Value()
 		if len(expected) != len(actual) {
 			t.Fatalf("expected:%+v actual: %+v", expected, actual)
 		}

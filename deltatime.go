@@ -1,19 +1,15 @@
 package midi
 
 type DeltaTime struct {
-	*Quantity
+	quantity *Quantity
 }
 
-func (d *DeltaTime) Value() int {
-	return int(d.value[0])
-}
+func (d *DeltaTime) Quantity() *Quantity {
+	if d.quantity == nil {
+		d.quantity = &Quantity{}
+	}
 
-func (d *DeltaTime) SetRawValue(value []byte) {
-	d.value = value
-}
-
-func (d *DeltaTime) serialize() []byte {
-	return d.value
+	return d.quantity
 }
 
 func parseDeltaTime(stream []byte) (*DeltaTime, error) {
