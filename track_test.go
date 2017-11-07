@@ -27,13 +27,13 @@ func TestParseTrack(t *testing.T) {
 		switch i {
 		case 0:
 			expectedText := "text event1"
-			actualText := event.(*TextEvent).Text()
+			actualText := string(event.(*TextEvent).Text())
 			if expectedText != actualText {
 				t.Fatalf("expected: %v actual: %v", expectedText, actualText)
 			}
 		case 1:
 			expectedText := "text event2"
-			actualText := event.(*TextEvent).Text()
+			actualText := string(event.(*TextEvent).Text())
 			if expectedText != actualText {
 				t.Fatalf("expected: %v actual: %v", expectedText, actualText)
 			}
