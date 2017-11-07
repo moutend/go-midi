@@ -79,3 +79,32 @@ func TestParseQuantity(t *testing.T) {
 		}
 	}
 }
+
+func TestQuantity_Uint32(t *testing.T) {
+	var u32 uint32
+	q := &Quantity{}
+
+	q.value = []byte{0xff, 0xff, 0xff, 0x7f}
+	u32 = q.Uint32()
+	if u32 != 0x0fffffff {
+		t.Fatalf("expected: 0x0fffffff actual: 0x%x", u32)
+	}
+
+	q.value = []byte{0xff, 0xff, 0x7f}
+	u32 = q.Uint32()
+	if u32 != 0x1fffff {
+		t.Fatalf("expected: 0x1fffff actual: 0x%x", u32)
+	}
+
+	q.value = []byte{0xff, 0x7f}
+	u32 = q.Uint32()
+	if u32 != 0x3fff {
+		t.Fatalf("expected: 0x3fff actual: 0x%x", u32)
+	}
+
+	q.value = []byte{0x7f}
+	u32 = q.Uint32()
+	if u32 != 0x7f {
+		t.Fatalf("expected: 0x7f actual: 0x%x", u32)
+	}
+}

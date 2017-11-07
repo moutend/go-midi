@@ -8,6 +8,24 @@ type Quantity struct {
 	value []byte
 }
 
+func (q *Quantity) Int() int {
+	return int(q.Uint32())
+}
+
+func (q *Quantity) Uint32() uint32 {
+	var u32 uint32
+
+	for i, b := range q.value {
+		u := uint32(b) & 0x7f
+		j := len(q.value) - i - 1
+		shift := (uint32(j * 8)) - uint32(j)
+		u = u << shift
+		u32 += u
+	}
+
+	return u32
+}
+
 func (q *Quantity) Value() int {
 	return int(q.value[0])
 }
