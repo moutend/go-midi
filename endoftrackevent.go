@@ -1,6 +1,6 @@
 package midi
 
-// EndOfTrackEvent corresponds to end of track event (0xff21) in MIDI.
+// EndOfTrackEvent corresponds to end of track event (0xff2f) in MIDI.
 type EndOfTrackEvent struct {
 	deltaTime *DeltaTime
 }
