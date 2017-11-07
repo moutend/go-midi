@@ -13,8 +13,8 @@ func TestParseEvent(t *testing.T) {
 	if sizeOfEvent != 21 {
 		t.Fatalf("expected: size of event = 21, actual: size of event = %v", sizeOfEvent)
 	}
-	if len(event.DeltaTime().value) != 1 {
-		t.Fatalf("expected: len(event.deltaTime.value) = 1 actual: len(event.deltaTime.value) = %v", len(event.DeltaTime().value))
+	if len(event.DeltaTime().Quantity().Value()) != 1 {
+		t.Fatalf("expected: len(event.deltaTime.Quantity().Value()) = 1 actual: len(event.deltaTime.Quantity().Value()) = %v", len(event.DeltaTime().Quantity().Value()))
 	}
 	switch event.(type) {
 	case *CopyrightNoticeEvent:
@@ -44,8 +44,8 @@ func TestParseEvent2(t *testing.T) {
 	if sizeOfEvent != 4 {
 		t.Fatalf("expected: size of event = 4, actual: size of event = %v", sizeOfEvent)
 	}
-	if len(event.DeltaTime().value) != 1 {
-		t.Fatalf("expected: len(event.deltaTime.value) = 1 actual: len(event.deltaTime.value) = %v", len(event.DeltaTime().value))
+	if len(event.DeltaTime().Quantity().Value()) != 1 {
+		t.Fatalf("expected: len(event.deltaTime.Quantity().Value()) = 1 actual: len(event.deltaTime.Quantity().Value()) = %v", len(event.DeltaTime().Quantity().Value()))
 	}
 	switch event.(type) {
 	case *SequenceOrTrackNameEvent:

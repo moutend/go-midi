@@ -21,7 +21,7 @@ func parseEvent(stream []byte) (Event, int, error) {
 	var eventType EventType
 
 	data := bytes.NewReader(stream)
-	sizeOfDeltaTime := int64(len(deltaTime.value))
+	sizeOfDeltaTime := int64(len(deltaTime.Quantity().Value()))
 	binary.Read(io.NewSectionReader(data, sizeOfDeltaTime, 1), binary.BigEndian, &eventType)
 
 	if eventType == Meta {
@@ -42,8 +42,8 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (Event, int,
 		return nil, 0, err
 	}
 
-	offset := len(deltaTime.value) + 1 + len(q.value)
-	sizeOfSystemExclusiveEventData := q.Int()
+	offset := len(deltaTime.Quantity().Value()) + 1 + len(q.value)
+	sizeOfSystemExclusiveEventData := int(q.Uint32())
 	sizeOfEvent := offset + sizeOfSystemExclusiveEventData
 	event = &SystemExclusiveEvent{
 		deltaTime: deltaTime,
@@ -135,7 +135,7 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
 		}
 	}
 
-	sizeOfEvent := len(deltaTime.value) + 3 + int(sizeOfMetaEventData)
+	sizeOfEvent := len(deltaTime.Quantity().Value()) + 3 + int(sizeOfMetaEventData)
 
 	return event, sizeOfEvent, nil
 }
@@ -202,7 +202,7 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventT
 		return nil, 0, fmt.Errorf("midi: invalid MIDI control event")
 	}
 
-	sizeOfEvent := len(deltaTime.value) + sizeOfMIDIControlEvent
+	sizeOfEvent := len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
 
 	return event, sizeOfEvent, nil
 }
