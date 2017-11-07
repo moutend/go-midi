@@ -159,9 +159,9 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventT
 	case NoteOn:
 		event = &NoteOnEvent{
 			deltaTime: deltaTime,
-			channel:   channel,
-			note:      uint8(parameter[0]),
-			velocity:  uint8(parameter[1]),
+			channel:   byte(channel),
+			note:      Note(parameter[0]),
+			velocity:  parameter[1],
 		}
 	case NoteAfterTouch:
 		event = &NoteAfterTouchEvent{
