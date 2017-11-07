@@ -26,8 +26,29 @@ func parseEvent(stream []byte) (Event, int, error) {
 	if eventType == Meta {
 		return parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
 	}
+	if eventType == SystemExclusive {
+		return parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
+	}
 
 	return parseMIDIControlEvent(stream, deltaTime, eventType)
+}
+
+func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
+	var event Event
+
+	q, err := parseQuantity(stream[1:])
+	if err != nil {
+		return nil, 0, err
+	}
+
+	offset := 1 + len(q.value)
+	sizeOfSystemExclusiveEventData := q.Int()
+	sizeOfEvent := offset + sizeOfSystemExclusiveEventData
+	event = &SystemExclusiveEvent{
+		data: stream[offset : offset+sizeOfSystemExclusiveEventData],
+	}
+
+	return event, sizeOfEvent, nil
 }
 
 func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
@@ -72,6 +93,16 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
 		event = &CuePointEvent{
 			deltaTime: deltaTime,
 			text:      metaEventData,
+		}
+	case MIDIPortPrefix:
+		event = &MIDIPortPrefixEvent{
+			deltaTime: deltaTime,
+			port:      uint8(metaEventData[0]),
+		}
+	case MIDIChannelPrefix:
+		event = &MIDIChannelPrefixEvent{
+			deltaTime: deltaTime,
+			channel:   uint8(metaEventData[0]),
 		}
 	case SetTempo:
 		event = &SetTempoEvent{
