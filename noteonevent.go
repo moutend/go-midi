@@ -2,15 +2,15 @@ package midi
 
 import "fmt"
 
-// NoteOnEvent corresponds to text event (0x90) in MIDI.
+// NoteOnEvent corresponds to note-on event (0x90) in MIDI.
 type NoteOnEvent struct {
 	deltaTime *DeltaTime
-	channel   byte
+	channel   uint8
 	note      Note
-	velocity  byte
+	velocity  uint8
 }
 
-// DeltaTime returns delta time of this event as DeltaTime.
+// DeltaTime returns delta time of this event.
 func (e *NoteOnEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
@@ -34,7 +34,7 @@ func (e *NoteOnEvent) Serialize() []byte {
 }
 
 // SetChannel sets channel of this event.
-func (e *NoteOnEvent) SetChannel(channel byte) error {
+func (e *NoteOnEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
 	}
@@ -54,7 +54,7 @@ func (e *NoteOnEvent) SetNote(note Note) error {
 }
 
 // SetVelocity sets velocity of this event.
-func (e *NoteOnEvent) SetVelocity(velocity byte) error {
+func (e *NoteOnEvent) SetVelocity(velocity uint8) error {
 	if velocity > 0x7f {
 		return fmt.Errorf("midi: maximum value of velocity is 127 (0x7f)")
 	}

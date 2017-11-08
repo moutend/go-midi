@@ -5,7 +5,7 @@ import "fmt"
 type PitchBendEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
-	note      uint8
+	note      Note
 	velocity  uint16
 }
 

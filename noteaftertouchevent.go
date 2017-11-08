@@ -5,7 +5,7 @@ import "fmt"
 type NoteAfterTouchEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
-	note      uint8
+	note      Note
 	velocity  uint8
 }
 

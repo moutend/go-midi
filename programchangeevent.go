@@ -4,7 +4,7 @@ import "fmt"
 
 type ProgramChangeEvent struct {
 	deltaTime *DeltaTime
-	channel   uint8
+	channel   byte
 	program   uint8
 }
 

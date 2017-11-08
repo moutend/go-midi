@@ -179,13 +179,13 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 		event = &NoteOffEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      uint8(parameter[0]),
-			velocity:  uint8(parameter[1]),
+			note:      Note(parameter[0]),
+			velocity:  parameter[1],
 		}
 	case NoteOn:
 		event = &NoteOnEvent{
 			deltaTime: deltaTime,
-			channel:   byte(channel),
+			channel:   channel,
 			note:      Note(parameter[0]),
 			velocity:  parameter[1],
 		}
@@ -193,7 +193,7 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 		event = &NoteAfterTouchEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      uint8(parameter[0]),
+			note:      Note(parameter[0]),
 			velocity:  uint8(parameter[1]),
 		}
 	case Controller:
@@ -204,25 +204,25 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 			value:     uint8(parameter[1]),
 		}
 	case ProgramChange:
+		sizeOfMIDIControlEvent = 2
 		event = &ProgramChangeEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
 			program:   uint8(parameter[0]),
 		}
-		sizeOfMIDIControlEvent = 2
 	case ChannelAfterTouch:
+		sizeOfMIDIControlEvent = 2
 		event = &ChannelAfterTouchEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
 			velocity:  uint8(parameter[0]),
 		}
-		sizeOfMIDIControlEvent = 2
 	case PitchBend:
 		event = &NoteOffEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      uint8(parameter[0]),
-			velocity:  uint8(parameter[1]),
+			note:      Note(parameter[0]),
+			velocity:  parameter[1],
 		}
 	default:
 		return nil, 0, fmt.Errorf("midi: invalid MIDI control event")
