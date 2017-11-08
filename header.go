@@ -41,7 +41,7 @@ func (h *Header) String() string {
 func (h *Header) serialize() []byte {
 	data := bytes.NewBuffer([]byte{})
 
-	binary.Write(data, binary.BigEndian, MThd)
+	binary.Write(data, binary.BigEndian, []byte("MThd"))
 	binary.Write(data, binary.BigEndian, uint32(6))
 	binary.Write(data, binary.BigEndian, h.formatType)
 	binary.Write(data, binary.BigEndian, h.tracks)
@@ -51,7 +51,8 @@ func (h *Header) serialize() []byte {
 }
 
 func parseHeader(stream []byte) (*Header, error) {
-	var chunkId ChunkId
+	const MThd uint32 = 0x4d546864
+	var chunkId uint32
 	var timeDivision uint16
 
 	header := &Header{}

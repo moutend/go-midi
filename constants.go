@@ -134,13 +134,6 @@ const (
 	G8       Note = 0x7f
 )
 
-type ChunkId uint32
-
-const (
-	MThd ChunkId = 0x4d546864
-	MTrk ChunkId = 0x4d54726B
-)
-
 type EventType uint8
 
 const (

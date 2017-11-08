@@ -39,8 +39,9 @@ func parseTrack(stream []byte) (*Track, error) {
 }
 
 func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
+	const MTrk uint32 = 0x4d54726B
+	var chunkId uint32
 	var start int64
-	var chunkId ChunkId
 	var chunkSize uint32
 
 	tracks := make([]*Track, numberOfTracks)
