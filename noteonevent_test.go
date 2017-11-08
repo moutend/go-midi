@@ -10,6 +10,19 @@ func TestNoteOnEvent_DeltaTime(t *testing.T) {
 	}
 }
 
+func TestNoteOnEvent_String(t *testing.T) {
+	event, err := NewNoteOnEvent(nil, 1, C3, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := "&NoteOnEvent{channel: 1, note: C3, velocity: 50}"
+	actual := event.String()
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
 func TestNoteOnEvent_Serialize(t *testing.T) {
 	event, err := NewNoteOnEvent(nil, 0, C3, 50)
 	if err != nil {
