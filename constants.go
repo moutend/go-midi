@@ -1,4 +1,5 @@
-// go: generate stringer -type=Note
+//go:generate stringer -type=Note -output=note_string.go
+//go:generate stringer -type=GM -output=gm_string.go
 package midi
 
 const (
