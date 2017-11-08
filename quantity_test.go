@@ -108,3 +108,39 @@ func TestQuantity_Uint32(t *testing.T) {
 		t.Fatalf("expected: 0x7f actual: 0x%x", u32)
 	}
 }
+
+func TestQuantity_SetUint32(t *testing.T) {
+	q := &Quantity{}
+
+	var err error
+	var u32 uint32
+	var expectedValue, actualValue []byte
+
+	err = q.SetUint32(0xffffffff)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	err = q.SetUint32(0xfffffff)
+	if err != nil {
+		t.Fatal(err)
+	}
+	u32 = q.Uint32()
+	if u32 != 0xfffffff {
+		t.Fatalf("expected: 0xfffffff actual: 0x%x", u32)
+	}
+
+	err = q.SetUint32(0x1fffff)
+	if err != nil {
+		t.Fatal(err)
+	}
+	u32 = q.Uint32()
+	if u32 == 0x1ffffff {
+		t.Fatalf("expected: 0x1ffffff actual: 0x%x", u32)
+	}
+	expectedValue = []byte{0x9f, 0xff, 0xff, 0x7f}
+	actualValue = q.Value()
+	if len(expectedValue) != len(actualValue) {
+		t.Fatalf("expected: %v bytes (%v) actual: %v bytes (%v)", len(expectedValue), expectedValue, len(actualValue), actualValue)
+	}
+}

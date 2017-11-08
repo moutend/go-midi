@@ -33,8 +33,22 @@ func (q *Quantity) Value() []byte {
 	return q.value
 }
 
-// SetUint32 reads value as uint32 and sets the value of Quantity.
-func (q *Quantity) SetUint32(value uint32) error {
+// SetUint32 sets the value.
+func (q *Quantity) SetUint32(u32 uint32) error {
+	if u32 > 0x0fffffff {
+		return fmt.Errorf("midi: maximum value is 0xffffff but got 0x%x", u32)
+	}
+
+	q.value = []byte{}
+	mask := uint32(0xfe00000)
+
+	for i := uint32(21); i >= 7; i -= 7 {
+		b := byte((u32&mask)>>i) + 0x80
+		mask = mask >> 7
+		q.value = append(q.value, byte(b))
+	}
+
+	q.value = append(q.value, byte(u32&0x7f))
 	return nil
 }
 
