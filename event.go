@@ -17,8 +17,9 @@ func parseEvent(stream []byte) (Event, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-
-	var eventType EventType
+	const SystemExclusive byte = 0xf0
+	const Meta = 0xff
+	var eventType byte
 
 	data := bytes.NewReader(stream)
 	sizeOfDeltaTime := int64(len(deltaTime.Quantity().Value()))
@@ -34,9 +35,7 @@ func parseEvent(stream []byte) (Event, int, error) {
 	return parseMIDIControlEvent(stream, deltaTime, eventType)
 }
 
-func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
-	var event Event
-
+func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
 	q, err := parseQuantity(stream[1:])
 	if err != nil {
 		return nil, 0, err
@@ -44,7 +43,8 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (Event, int,
 
 	offset := len(deltaTime.Quantity().Value()) + 1 + len(q.value)
 	sizeOfSystemExclusiveEventData := int(q.Uint32())
-	sizeOfEvent := offset + sizeOfSystemExclusiveEventData
+	sizeOfEvent = offset + sizeOfSystemExclusiveEventData
+
 	event = &SystemExclusiveEvent{
 		deltaTime: deltaTime,
 		data:      stream[offset : offset+sizeOfSystemExclusiveEventData],
@@ -53,10 +53,26 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (Event, int,
 	return event, sizeOfEvent, nil
 }
 
-func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
-	var event Event
+func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
+	const (
+		Text                = 0x01
+		CopyrightNotice     = 0x02
+		SequenceOrTrackName = 0x03
+		InstrumentName      = 0x04
+		Lyrics              = 0x05
+		Marker              = 0x06
+		CuePoint            = 0x07
+		MIDIPortPrefix      = 0x20
+		MIDIChannelPrefix   = 0x21
+		SetTempo            = 0x51
+		SMPTEOffset         = 0x54
+		TimeSignature       = 0x58
+		KeySignature        = 0x59
+		SequencerSpecific   = 0x7f
+		EndOfTrack          = 0x2f
+	)
 
-	metaEventType := MetaEventType(stream[1])
+	metaEventType := stream[1]
 	sizeOfMetaEventData := int64(stream[2])
 	metaEventData := stream[3 : sizeOfMetaEventData+3]
 
@@ -135,13 +151,23 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (Event, int, error) {
 		}
 	}
 
-	sizeOfEvent := len(deltaTime.Quantity().Value()) + 3 + int(sizeOfMetaEventData)
+	sizeOfEvent = len(deltaTime.Quantity().Value()) + 3 + int(sizeOfMetaEventData)
 
 	return event, sizeOfEvent, nil
 }
 
-func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventType) (Event, int, error) {
-	var event Event
+func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
+	const (
+		NoteOff           = 0x80
+		NoteOn            = 0x90
+		NoteAfterTouch    = 0xa0
+		Controller        = 0xb0
+		ProgramChange     = 0xc0
+		ChannelAfterTouch = 0xd0
+		PitchBend         = 0xe0
+		SystemExclusive   = 0xf0
+		EndOfNormalSysEx  = 0xf7
+	)
 
 	parameter := stream[1:3]
 	channel := uint8(eventType) & 0x0f
@@ -202,7 +228,7 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType EventT
 		return nil, 0, fmt.Errorf("midi: invalid MIDI control event")
 	}
 
-	sizeOfEvent := len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
+	sizeOfEvent = len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
 
 	return event, sizeOfEvent, nil
 }
