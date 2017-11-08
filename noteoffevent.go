@@ -22,7 +22,7 @@ func (e *NoteOffEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of this event.
 func (e *NoteOffEvent) String() string {
-	return fmt.Sprintf("&NoteOffEvent{}")
+	return fmt.Sprintf("&NoteOffEvent{channel: %v, note: %v, velocity: %v}", e.channel, e.note, e.velocity)
 }
 
 // Serialize serializes this event.
