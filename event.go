@@ -54,24 +54,6 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event
 }
 
 func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
-	const (
-		Text                = 0x01
-		CopyrightNotice     = 0x02
-		SequenceOrTrackName = 0x03
-		InstrumentName      = 0x04
-		Lyrics              = 0x05
-		Marker              = 0x06
-		CuePoint            = 0x07
-		MIDIPortPrefix      = 0x20
-		MIDIChannelPrefix   = 0x21
-		SetTempo            = 0x51
-		SMPTEOffset         = 0x54
-		TimeSignature       = 0x58
-		KeySignature        = 0x59
-		SequencerSpecific   = 0x7f
-		EndOfTrack          = 0x2f
-	)
-
 	metaEventType := stream[1]
 	sizeOfMetaEventData := int64(stream[2])
 	metaEventData := stream[3 : sizeOfMetaEventData+3]
@@ -157,18 +139,6 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 }
 
 func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
-	const (
-		NoteOff           = 0x80
-		NoteOn            = 0x90
-		NoteAfterTouch    = 0xa0
-		Controller        = 0xb0
-		ProgramChange     = 0xc0
-		ChannelAfterTouch = 0xd0
-		PitchBend         = 0xe0
-		SystemExclusive   = 0xf0
-		EndOfNormalSysEx  = 0xf7
-	)
-
 	parameter := stream[1:3]
 	channel := uint8(eventType) & 0x0f
 	eventType = eventType & 0xf0
