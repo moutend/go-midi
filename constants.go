@@ -134,41 +134,6 @@ const (
 	G8       Note = 0x7f
 )
 
-type EventType uint8
-
-const (
-	NoteOff           EventType = 0x80
-	NoteOn            EventType = 0x90
-	NoteAfterTouch    EventType = 0xa0
-	Controller        EventType = 0xb0
-	ProgramChange     EventType = 0xc0
-	ChannelAfterTouch EventType = 0xd0
-	PitchBend         EventType = 0xe0
-	SystemExclusive   EventType = 0xf0
-	EndOfNormalSysEx  EventType = 0xf7
-	Meta              EventType = 0xff
-)
-
-type MetaEventType uint8
-
-const (
-	Text                MetaEventType = 0x01
-	CopyrightNotice     MetaEventType = 0x02
-	SequenceOrTrackName MetaEventType = 0x03
-	InstrumentName      MetaEventType = 0x04
-	Lyrics              MetaEventType = 0x05
-	Marker              MetaEventType = 0x06
-	CuePoint            MetaEventType = 0x07
-	MIDIPortPrefix      MetaEventType = 0x20
-	MIDIChannelPrefix   MetaEventType = 0x21
-	SetTempo            MetaEventType = 0x51
-	SMPTEOffset         MetaEventType = 0x54
-	TimeSignature       MetaEventType = 0x58
-	KeySignature        MetaEventType = 0x59
-	SequencerSpecific   MetaEventType = 0x7f
-	EndOfTrack          MetaEventType = 0x2f
-)
-
 type Rhythm uint16
 
 const (
