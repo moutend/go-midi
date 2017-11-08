@@ -1,32 +1,44 @@
 go-midi
 ========
 
+[![GitHub release](https://img.shields.io/github/release/moutend/go-midi.svg?style=flat-square)][release]
+[![CircleCI](https://circleci.com/gh/moutend/go-midi.svg?style=svg&circle-token=e7748578056ded93a5532904c047fc0f23db3bba)](https://circleci.com/gh/moutend/go-midi)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 
-[license]: https://github.com/moutend/mediumctl/blob/master/LICENSE
+[release]: https://github.com/moutend/go-midi/releases
+[status]: https://circleci.com/gh/moutend/go-midi
+[license]: https://github.com/moutend/go-midi/blob/master/LICENSE
 
 WIP
 
-Read and write standard MIDI file.
+Package midi implements reading and writing standard MIDI file.
+
+## Installation
 
 ```console
-go get golang.org/x/tools/cmd/stringer
+go get github.com/moutend/go-midi
 ```
 
+## Usage
 
-## Numbering of keys (notes)
+WIP
 
-> There are TWO conventions for numbering keys (notes) in MIDI. The most common is the one below where MIDDLE C (note #60; $3C) is C3 (C in the 3rd octave). However, another convention was adopted by Yamaha Corp. for their synthesizer products which parallels the Octave Designation System used in Music Education formulated by the Acoustical Society of America. In that convention, Middle C is designated "C4". The "C3 Convention" is the most commonly used octave designation system on standard MIDI keyboards and this is the convention we will use for this class.
+## Numbering of notes
 
-# Test Data
+There are two conventions for notes in MIDI. The most common is where C3 is `0x3c` and the another is where C4 is `0x3c`. In this package, where C3 is `0x3c`.
 
-[星のカービィ　MIDI - みかんの旅]()http://mikannotabi.blog31.fc2.com/blog-entry-6.html
+## MIDI files for testing
 
-## Documents
+The MIDI files located at `testdata` were composed by Nao. Check her great works:
 
+- [星のカービィ　MIDI - みかんの旅](http://mikannotabi.blog31.fc2.com/blog-entry-6.html)
+
+## About MIDI
+
+- [MIDI File Format Specifications · colxi/midi-parser-js Wiki](https://github.com/colxi/midi-parser-js/wiki/MIDI-File-Format-Specifications)
+- [0xff21 and 0xff20 in MIDI](https://groups.google.com/forum/#!topic/comp.music.midi/_MIjgi-8xQQ)
 - [Computer Music/ MIDI Key Number Chart](http://computermusicresource.com/midikeys.html)
-- https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
-- http://openmidiproject.osdn.jp/documentations_en.html
+- [OpenMIDIProject - Documentations](http://openmidiproject.osdn.jp/documentations_en.html)
 
 ## Contributing
 
