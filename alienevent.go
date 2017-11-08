@@ -4,7 +4,7 @@ import "fmt"
 
 type AlienEvent struct {
 	deltaTime     *DeltaTime
-	metaEventType MetaEventType
+	metaEventType byte
 	data          []byte
 }
 
