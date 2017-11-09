@@ -64,7 +64,7 @@ func (e *NoteAfterTouchEvent) SetVelocity(velocity uint8) error {
 }
 
 // NewNoteAfterTouchEvent returns NoteAfterTouchEvent with the given parameter.
-func NewNoteAfterTouchEvent(deltaTime *DeltaTime, channel byte, note Note, velocity byte) (*NoteAfterTouchEvent, error) {
+func NewNoteAfterTouchEvent(deltaTime *DeltaTime, channel uint8, note Note, velocity uint8) (*NoteAfterTouchEvent, error) {
 	var err error
 
 	event := &NoteAfterTouchEvent{}

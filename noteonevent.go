@@ -64,7 +64,7 @@ func (e *NoteOnEvent) SetVelocity(velocity uint8) error {
 }
 
 // NewNoteOnEvent returns NoteOnEvent with the given parameter.
-func NewNoteOnEvent(deltaTime *DeltaTime, channel byte, note Note, velocity byte) (*NoteOnEvent, error) {
+func NewNoteOnEvent(deltaTime *DeltaTime, channel uint8, note Note, velocity uint8) (*NoteOnEvent, error) {
 	var err error
 
 	event := &NoteOnEvent{}
