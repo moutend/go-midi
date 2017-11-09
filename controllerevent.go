@@ -2,6 +2,7 @@ package midi
 
 import "fmt"
 
+// ControllerEvent corresponds to controller event (0xb0) in MIDI.
 type ControllerEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
@@ -9,10 +10,77 @@ type ControllerEvent struct {
 	value     uint8
 }
 
+// DeltaTime returns delta time of this event.
 func (e *ControllerEvent) DeltaTime() *DeltaTime {
+	if e.deltaTime == nil {
+		e.deltaTime = &DeltaTime{}
+	}
 	return e.deltaTime
 }
 
+// String returns string representation of this event.
 func (e *ControllerEvent) String() string {
-	return fmt.Sprintf("&ControllerEvent{}")
+	return fmt.Sprintf("&ControllerEvent{channel: %v, control: %v, value: %v}", e.channel, e.control, e.value)
+}
+
+// Serialize serializes this event.
+func (e *ControllerEvent) Serialize() []byte {
+	bs := []byte{}
+	bs = append(bs, e.DeltaTime().Quantity().Value()...)
+	bs = append(bs, Controller+e.channel)
+	bs = append(bs, e.control, e.value)
+
+	return bs
+}
+
+// SetChannel sets channel of this event.
+func (e *ControllerEvent) SetChannel(channel uint8) error {
+	if channel > 0x0f {
+		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
+	}
+	e.channel = channel
+
+	return nil
+}
+
+// SetControl sets control for this event.
+func (e *ControllerEvent) SetControl(control uint8) error {
+	if control > 0x7f {
+		return fmt.Errorf("midi: maximum value of control is 127 (0x7f)")
+	}
+	e.control = control
+
+	return nil
+}
+
+// SetValue sets value of this event.
+func (e *ControllerEvent) SetValue(value uint8) error {
+	if value > 0x7f {
+		return fmt.Errorf("midi: maximum value of value is 127 (0x7f)")
+	}
+	e.value = value
+
+	return nil
+}
+
+// NewControllerEvent returns ControllerEvent with the given parameter.
+func NewControllerEvent(deltaTime *DeltaTime, channel byte, control, value uint8) (*ControllerEvent, error) {
+	var err error
+
+	event := &ControllerEvent{}
+	event.deltaTime = deltaTime
+
+	err = event.SetChannel(channel)
+	if err != nil {
+		return nil, err
+	}
+	err = event.SetControl(control)
+	if err != nil {
+		return nil, err
+	}
+	err = event.SetValue(value)
+	if err != nil {
+		return nil, err
+	}
+	return event, nil
 }
