@@ -113,8 +113,7 @@ func TestQuantity_SetUint32(t *testing.T) {
 	q := &Quantity{}
 
 	var err error
-	var u32 uint32
-	var expectedValue, actualValue []byte
+	var expected, actual []byte
 
 	err = q.SetUint32(0xffffffff)
 	if err == nil {
@@ -125,22 +124,125 @@ func TestQuantity_SetUint32(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	u32 = q.Uint32()
-	if u32 != 0xfffffff {
-		t.Fatalf("expected: 0xfffffff actual: 0x%x", u32)
+
+	expected = []byte{0xff, 0xff, 0xff, 0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
+	}
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
+	}
+
+	err = q.SetUint32(0x3fffff)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected = []byte{0x81, 0xff, 0xff, 0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
+	}
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
 	}
 
 	err = q.SetUint32(0x1fffff)
 	if err != nil {
 		t.Fatal(err)
 	}
-	u32 = q.Uint32()
-	if u32 == 0x1ffffff {
-		t.Fatalf("expected: 0x1ffffff actual: 0x%x", u32)
+
+	expected = []byte{0xff, 0xff, 0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
 	}
-	expectedValue = []byte{0x9f, 0xff, 0xff, 0x7f}
-	actualValue = q.Value()
-	if len(expectedValue) != len(actualValue) {
-		t.Fatalf("expected: %v bytes (%v) actual: %v bytes (%v)", len(expectedValue), expectedValue, len(actualValue), actualValue)
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
+	}
+
+	err = q.SetUint32(0x7fff)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected = []byte{0x81, 0xff, 0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
+	}
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
+	}
+
+	err = q.SetUint32(0x3fff)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected = []byte{0xff, 0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
+	}
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
+	}
+
+	err = q.SetUint32(0xff)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected = []byte{0x81, 0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
+	}
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
+	}
+
+	err = q.SetUint32(0x7f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected = []byte{0x7f}
+	actual = q.value
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
+	}
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
+		}
 	}
 }
