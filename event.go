@@ -188,11 +188,12 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 			velocity:  uint8(parameter[0]),
 		}
 	case PitchBend:
-		event = &NoteOffEvent{
+		pitch := uint16(parameter[0]&0x7f) << 7
+		pitch += uint16(parameter[1] & 0x7f)
+		event = &PitchBendEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      Note(parameter[0]),
-			velocity:  parameter[1],
+			pitch:     pitch,
 		}
 	default:
 		return nil, 0, fmt.Errorf("midi: invalid MIDI control event")
