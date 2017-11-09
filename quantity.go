@@ -45,7 +45,9 @@ func (q *Quantity) SetUint32(u32 uint32) error {
 	for i := uint32(21); i >= 7; i -= 7 {
 		b := byte((u32&mask)>>i) + 0x80
 		mask = mask >> 7
-		q.value = append(q.value, byte(b))
+		if b > 0x80 {
+			q.value = append(q.value, byte(b))
+		}
 	}
 
 	q.value = append(q.value, byte(u32&0x7f))
