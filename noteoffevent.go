@@ -29,7 +29,7 @@ func (e *NoteOffEvent) String() string {
 func (e *NoteOffEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
-	bs = append(bs, NoteOff+byte(e.channel))
+	bs = append(bs, NoteOff+e.channel)
 	bs = append(bs, byte(e.note), e.velocity)
 
 	return bs
