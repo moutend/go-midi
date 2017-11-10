@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// NoteOffEvent corresponds to note-off event (0x80) in MIDI.
+// NoteOffEvent corresponds to note off event.
 type NoteOffEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
@@ -12,7 +12,7 @@ type NoteOffEvent struct {
 	velocity  uint8
 }
 
-// DeltaTime returns delta time of this event.
+// DeltaTime returns delta time of note off event.
 func (e *NoteOffEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
@@ -20,12 +20,12 @@ func (e *NoteOffEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of this event.
+// String returns string representation of note off event.
 func (e *NoteOffEvent) String() string {
 	return fmt.Sprintf("&NoteOffEvent{channel: %v, note: %v, velocity: %v}", e.channel, e.note, e.velocity)
 }
 
-// Serialize serializes this event.
+// Serialize serializes note off event.
 func (e *NoteOffEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
@@ -35,7 +35,7 @@ func (e *NoteOffEvent) Serialize() []byte {
 	return bs
 }
 
-// SetChannel sets channel of this event.
+// SetChannel sets channel.
 func (e *NoteOffEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
@@ -45,7 +45,12 @@ func (e *NoteOffEvent) SetChannel(channel uint8) error {
 	return nil
 }
 
-// SetNote sets note for this event.
+// Channel returns channel.
+func (e *NoteOffEvent) Channel() uint8 {
+	return e.channel
+}
+
+// SetNote sets note.
 func (e *NoteOffEvent) SetNote(note Note) error {
 	if note > 0x7f {
 		return fmt.Errorf("midi: maximum value of note is 127 (0x7f)")
@@ -55,7 +60,12 @@ func (e *NoteOffEvent) SetNote(note Note) error {
 	return nil
 }
 
-// SetVelocity sets velocity of this event.
+// Note returns note.
+func (e *NoteOffEvent) Note() Note {
+	return e.note
+}
+
+// SetVelocity sets velocity.
 func (e *NoteOffEvent) SetVelocity(velocity uint8) error {
 	if velocity > 0x7f {
 		return fmt.Errorf("midi: maximum value of velocity is 127 (0x7f)")
@@ -63,6 +73,11 @@ func (e *NoteOffEvent) SetVelocity(velocity uint8) error {
 	e.velocity = velocity
 
 	return nil
+}
+
+// Velocity returns velocity.
+func (e *NoteOffEvent) Velocity() uint8 {
+	return e.velocity
 }
 
 // NewNoteOffEvent returns NoteOffEvent with the given parameter.

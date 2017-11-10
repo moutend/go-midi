@@ -2,14 +2,14 @@ package midi
 
 import "fmt"
 
-// ChannelAfterTouchEvent corresponds to channel after touch event (0xd0) in MIDI.
+// ChannelAfterTouchEvent corresponds to channel after touch event.
 type ChannelAfterTouchEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
 	velocity  uint8
 }
 
-// DeltaTime returns delta time of this event.
+// DeltaTime returns delta time of channel after touch event.
 func (e *ChannelAfterTouchEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
@@ -17,12 +17,12 @@ func (e *ChannelAfterTouchEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of this event.
+// String returns string representation of channel after touch event.
 func (e *ChannelAfterTouchEvent) String() string {
 	return fmt.Sprintf("&ChannelAfterTouchEvent{channel: %v, velocity: %v}", e.channel, e.velocity)
 }
 
-// Serialize serializes this event.
+// Serialize serializes channel after touch event.
 func (e *ChannelAfterTouchEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
@@ -32,7 +32,7 @@ func (e *ChannelAfterTouchEvent) Serialize() []byte {
 	return bs
 }
 
-// SetChannel sets channel of this event.
+// SetChannel sets channel.
 func (e *ChannelAfterTouchEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
@@ -42,7 +42,12 @@ func (e *ChannelAfterTouchEvent) SetChannel(channel uint8) error {
 	return nil
 }
 
-// SetVelocity sets velocity of this event.
+// Channel returns channel.
+func (e *ChannelAfterTouchEvent) Channel() uint8 {
+	return e.channel
+}
+
+// SetVelocity sets velocity.
 func (e *ChannelAfterTouchEvent) SetVelocity(velocity uint8) error {
 	if velocity > 0x7f {
 		return fmt.Errorf("midi: maximum value of velocity is 127 (0x7f)")
@@ -50,6 +55,11 @@ func (e *ChannelAfterTouchEvent) SetVelocity(velocity uint8) error {
 	e.velocity = velocity
 
 	return nil
+}
+
+// Velocity returns velocity.
+func (e *ChannelAfterTouchEvent) Velocity() uint8 {
+	return e.velocity
 }
 
 // NewChannelAfterTouchEvent returns ChannelAfterTouchEvent with the given parameter.

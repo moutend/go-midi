@@ -2,14 +2,14 @@ package midi
 
 import "fmt"
 
-// ProgramChangeEvent corresponds to program change event (0xc0) in MIDI.
+// ProgramChangeEvent corresponds to program change event.
 type ProgramChangeEvent struct {
 	deltaTime *DeltaTime
 	channel   byte
 	program   uint8
 }
 
-// DeltaTime returns delta time of this event.
+// DeltaTime returns delta time of program change event.
 func (e *ProgramChangeEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
@@ -18,12 +18,12 @@ func (e *ProgramChangeEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of this event.
+// String returns string representation of program change event.
 func (e *ProgramChangeEvent) String() string {
 	return fmt.Sprintf("&ProgramChangeEvent{channel: %v, program: %v}", e.channel, e.program)
 }
 
-// Serialize serializes this event.
+// Serialize serializes program change event.
 func (e *ProgramChangeEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
@@ -33,7 +33,7 @@ func (e *ProgramChangeEvent) Serialize() []byte {
 	return bs
 }
 
-// SetChannel sets channel of this event.
+// SetChannel sets channel.
 func (e *ProgramChangeEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
@@ -43,7 +43,12 @@ func (e *ProgramChangeEvent) SetChannel(channel uint8) error {
 	return nil
 }
 
-// SetProgram sets program of this event.
+// Channel returns channel.
+func (e *ProgramChangeEvent) Channel() uint8 {
+	return e.channel
+}
+
+// SetProgram sets program.
 func (e *ProgramChangeEvent) SetProgram(program uint8) error {
 	if program > 0x7f {
 		return fmt.Errorf("midi: maximum value of program is 127 (0x7f)")
@@ -51,6 +56,11 @@ func (e *ProgramChangeEvent) SetProgram(program uint8) error {
 	e.program = program
 
 	return nil
+}
+
+// Program returns program.
+func (e *ProgramChangeEvent) Program() uint8 {
+	return e.program
 }
 
 // NewProgramChangeEvent returns ProgramChangeEvent with the given parameter.

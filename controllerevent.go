@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// ControllerEvent corresponds to controller event (0xb0) in MIDI.
+// ControllerEvent corresponds to controller event.
 type ControllerEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
@@ -10,7 +10,7 @@ type ControllerEvent struct {
 	value     uint8
 }
 
-// DeltaTime returns delta time of this event.
+// DeltaTime returns delta time of controller event.
 func (e *ControllerEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
@@ -18,12 +18,12 @@ func (e *ControllerEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of this event.
+// String returns string representation of controller event.
 func (e *ControllerEvent) String() string {
 	return fmt.Sprintf("&ControllerEvent{channel: %v, control: %v, value: %v}", e.channel, e.control, e.value)
 }
 
-// Serialize serializes this event.
+// Serialize serializes controller event.
 func (e *ControllerEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
@@ -33,7 +33,7 @@ func (e *ControllerEvent) Serialize() []byte {
 	return bs
 }
 
-// SetChannel sets channel of this event.
+// SetChannel sets channel.
 func (e *ControllerEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
@@ -43,7 +43,12 @@ func (e *ControllerEvent) SetChannel(channel uint8) error {
 	return nil
 }
 
-// SetControl sets control for this event.
+// Channel returns channel.
+func (e *ControllerEvent) Channel() uint8 {
+	return e.channel
+}
+
+// SetControl sets control.
 func (e *ControllerEvent) SetControl(control uint8) error {
 	if control > 0x7f {
 		return fmt.Errorf("midi: maximum value of control is 127 (0x7f)")
@@ -53,7 +58,12 @@ func (e *ControllerEvent) SetControl(control uint8) error {
 	return nil
 }
 
-// SetValue sets value of this event.
+// Control returns control.
+func (e *ControllerEvent) Control() uint8 {
+	return e.control
+}
+
+// SetValue sets value.
 func (e *ControllerEvent) SetValue(value uint8) error {
 	if value > 0x7f {
 		return fmt.Errorf("midi: maximum value of value is 127 (0x7f)")
@@ -61,6 +71,11 @@ func (e *ControllerEvent) SetValue(value uint8) error {
 	e.value = value
 
 	return nil
+}
+
+// Value returns value.
+func (e *ControllerEvent) Value() uint8 {
+	return e.value
 }
 
 // NewControllerEvent returns ControllerEvent with the given parameter.

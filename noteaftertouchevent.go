@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// NoteAfterTouchEvent corresponds to note after touch event (0xa0) in MIDI.
+// NoteAfterTouchEvent corresponds to note after touch event.
 type NoteAfterTouchEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
@@ -10,7 +10,7 @@ type NoteAfterTouchEvent struct {
 	velocity  uint8
 }
 
-// DeltaTime returns delta time of this event.
+// DeltaTime returns delta time of note after touch event.
 func (e *NoteAfterTouchEvent) DeltaTime() *DeltaTime {
 	if e.deltaTime == nil {
 		e.deltaTime = &DeltaTime{}
@@ -18,12 +18,12 @@ func (e *NoteAfterTouchEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of this event.
+// String returns string representation of note after touch event.
 func (e *NoteAfterTouchEvent) String() string {
 	return fmt.Sprintf("&NoteAfterTouchEvent{channel: %v, note: %v, velocity: %v}", e.channel, e.note, e.velocity)
 }
 
-// Serialize serializes this event.
+// Serialize serializes note after touch event.
 func (e *NoteAfterTouchEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
@@ -33,7 +33,7 @@ func (e *NoteAfterTouchEvent) Serialize() []byte {
 	return bs
 }
 
-// SetChannel sets channel of this event.
+// SetChannel sets channel.
 func (e *NoteAfterTouchEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
@@ -43,7 +43,12 @@ func (e *NoteAfterTouchEvent) SetChannel(channel uint8) error {
 	return nil
 }
 
-// SetNote sets note for this event.
+// Channel returns channel.
+func (e *NoteAfterTouchEvent) Channel() uint8 {
+	return e.channel
+}
+
+// SetNote sets note.
 func (e *NoteAfterTouchEvent) SetNote(note Note) error {
 	if note > 0x7f {
 		return fmt.Errorf("midi: maximum value of note is 127 (0x7f)")
@@ -53,7 +58,12 @@ func (e *NoteAfterTouchEvent) SetNote(note Note) error {
 	return nil
 }
 
-// SetVelocity sets velocity of this event.
+// Note returns note.
+func (e *NoteAfterTouchEvent) Note() Note {
+	return e.note
+}
+
+// SetVelocity sets velocity.
 func (e *NoteAfterTouchEvent) SetVelocity(velocity uint8) error {
 	if velocity > 0x7f {
 		return fmt.Errorf("midi: maximum value of velocity is 127 (0x7f)")
@@ -61,6 +71,11 @@ func (e *NoteAfterTouchEvent) SetVelocity(velocity uint8) error {
 	e.velocity = velocity
 
 	return nil
+}
+
+// Velocity returns velocity.
+func (e *NoteAfterTouchEvent) Velocity() uint8 {
+	return e.velocity
 }
 
 // NewNoteAfterTouchEvent returns NoteAfterTouchEvent with the given parameter.

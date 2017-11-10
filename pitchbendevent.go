@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// PitchBendEvent corresponds to pitch bend event (0xE) in MIDI.
+// PitchBendEvent corresponds to pitch bend event.
 type PitchBendEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
@@ -35,7 +35,7 @@ func (e *PitchBendEvent) Serialize() []byte {
 	return bs
 }
 
-// SetChannel sets number of channels for pitch bend event.
+// SetChannel sets channel.
 func (e *PitchBendEvent) SetChannel(channel uint8) error {
 	if channel > 0x0f {
 		return fmt.Errorf("midi: maximum channel number is 15 (0x0f)")
@@ -45,7 +45,7 @@ func (e *PitchBendEvent) SetChannel(channel uint8) error {
 	return nil
 }
 
-// Channel returns number of channels.
+// Channel returns channel.
 func (e *PitchBendEvent) Channel() uint8 {
 	return e.channel
 }
