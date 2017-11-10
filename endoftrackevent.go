@@ -29,8 +29,6 @@ func (e *EndOfTrackEvent) Serialize() []byte {
 
 // NewEndOfTrackEvent returns EndOfTrackEvent with the given parameter.
 func NewEndOfTrackEvent(deltaTime *DeltaTime) (*EndOfTrackEvent, error) {
-	var err error
-
 	event := &EndOfTrackEvent{}
 	event.deltaTime = deltaTime
 
