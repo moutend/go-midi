@@ -115,11 +115,17 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 		}
 	case TimeSignature:
 		event = &TimeSignatureEvent{
-			deltaTime: deltaTime,
+			deltaTime:      deltaTime,
+			numerator:      uint8(metaEventData[0]),
+			denominator:    uint8(metaEventData[1]),
+			metronomePulse: uint8(metaEventData[2]),
+			quarterNote:    uint8(metaEventData[3]),
 		}
 	case KeySignature:
 		event = &KeySignatureEvent{
 			deltaTime: deltaTime,
+			key:       int8(metaEventData[0]),
+			scale:     uint8(metaEventData[1]),
 		}
 	case EndOfTrack:
 		event = &EndOfTrackEvent{
