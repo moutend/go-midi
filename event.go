@@ -98,6 +98,11 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 	case SMPTEOffset:
 		event = &SMPTEOffsetEvent{
 			deltaTime: deltaTime,
+			hour:      metaEventData[0],
+			minute:    metaEventData[1],
+			second:    metaEventData[2],
+			frame:     metaEventData[3],
+			subFrame:  metaEventData[4],
 		}
 	case TimeSignature:
 		event = &TimeSignatureEvent{
