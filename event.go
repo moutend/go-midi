@@ -118,6 +118,11 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 			key:       int8(metaEventData[0]),
 			scale:     uint8(metaEventData[1]),
 		}
+	case SequencerSpecific:
+		event = &SequencerSpecificEvent{
+			deltaTime: deltaTime,
+			data:      metaEventData,
+		}
 	case EndOfTrack:
 		event = &EndOfTrackEvent{
 			deltaTime: deltaTime,
