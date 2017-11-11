@@ -11,12 +11,12 @@ func TestChannelAfterTouchEvent_DeltaTime(t *testing.T) {
 }
 
 func TestChannelAfterTouchEvent_String(t *testing.T) {
-	event, err := NewChannelAfterTouchEvent(nil, 1, 50)
+	event, err := NewChannelAfterTouchEvent(nil, 1, 123)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expected := "&ChannelAfterTouchEvent{channel: 1, velocity: 50}"
+	expected := "&ChannelAfterTouchEvent{channel: 1, velocity: 123}"
 	actual := event.String()
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -24,12 +24,12 @@ func TestChannelAfterTouchEvent_String(t *testing.T) {
 }
 
 func TestChannelAfterTouchEvent_Serialize(t *testing.T) {
-	event, err := NewChannelAfterTouchEvent(nil, 0, 50)
+	event, err := NewChannelAfterTouchEvent(nil, 1, 123)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expected := []byte{0x00, 0xd0, 0x32}
+	expected := []byte{0x00, 0xd1, 0x7b}
 	actual := event.Serialize()
 
 	if len(expected) != len(actual) {
@@ -40,5 +40,66 @@ func TestChannelAfterTouchEvent_Serialize(t *testing.T) {
 		if e != a {
 			t.Fatalf("expected[%v] = 0x%x actual[%v] = 0x%x", i, e, i, a)
 		}
+	}
+}
+
+func TestChannelAfterTouchEvent_SetChannel(t *testing.T) {
+	event := &ChannelAfterTouchEvent{}
+
+	err := event.SetChannel(0x10)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetChannel(0x0f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestChannelAfterTouchEvent_Channel(t *testing.T) {
+	event := &ChannelAfterTouchEvent{channel: 1}
+
+	expected := uint8(1)
+	actual := event.Channel()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestChannelAfterTouchEvent_SetVelocity(t *testing.T) {
+	event := &ChannelAfterTouchEvent{}
+
+	err := event.SetVelocity(0x80)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetVelocity(0x7f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestChannelAfterTouchEvent_Velocity(t *testing.T) {
+	event := &ChannelAfterTouchEvent{velocity: 1}
+
+	expected := uint8(1)
+	actual := event.Velocity()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestNewChannelAfterTouchEvent(t *testing.T) {
+	event, err := NewChannelAfterTouchEvent(nil, 1, 123)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if event.channel != 1 {
+		t.Fatalf("expected: 1 actual: %v", event.channel)
+	}
+	if event.velocity != 123 {
+		t.Fatalf("expected: 123 actual: %v", event.velocity)
 	}
 }
