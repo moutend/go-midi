@@ -42,3 +42,92 @@ func TestNoteAfterTouchEvent_Serialize(t *testing.T) {
 		}
 	}
 }
+
+func TestNoteAfterTouchEvent_SetChannel(t *testing.T) {
+	event := &NoteAfterTouchEvent{}
+
+	err := event.SetChannel(0x10)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetChannel(0x0f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNoteAfterTouchEvent_Channel(t *testing.T) {
+	event := &NoteAfterTouchEvent{channel: 1}
+
+	expected := uint8(1)
+	actual := event.Channel()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestNoteAfterTouchEvent_SetNote(t *testing.T) {
+	event := &NoteAfterTouchEvent{}
+
+	err := event.SetNote(0x80)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetNote(0x7f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNoteAfterTouchEvent_Note(t *testing.T) {
+	event := &NoteAfterTouchEvent{note: C3}
+
+	expected := C3
+	actual := event.Note()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestNoteAfterTouchEvent_SetVelocity(t *testing.T) {
+	event := &NoteAfterTouchEvent{}
+
+	err := event.SetVelocity(0x80)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetVelocity(0x7f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNoteAfterTouchEvent_Velocity(t *testing.T) {
+	event := &NoteAfterTouchEvent{velocity: 1}
+
+	expected := uint8(1)
+	actual := event.Velocity()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestNewNoteAfterTouchEvent(t *testing.T) {
+	event, err := NewNoteAfterTouchEvent(nil, 1, C3, 123)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if event.channel != 1 {
+		t.Fatalf("expected: 1 actual: %v", event.channel)
+	}
+	if event.note != C3 {
+		t.Fatalf("expected: C3 actual: %v", event.note)
+	}
+	if event.velocity != 123 {
+		t.Fatalf("expected: 123 actual: %v", event.velocity)
+	}
+
+}
