@@ -1,12 +1,8 @@
 package midi
 
-import (
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"io"
-)
+import "fmt"
 
+// Event represents any MIDI events, including meta and system exclusive.
 type Event interface {
 	DeltaTime() *DeltaTime
 }
@@ -17,41 +13,18 @@ func parseEvent(stream []byte) (Event, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	const SystemExclusive byte = 0xf0
-	const Meta = 0xff
-	var eventType byte
 
-	data := bytes.NewReader(stream)
-	sizeOfDeltaTime := int64(len(deltaTime.Quantity().Value()))
-	binary.Read(io.NewSectionReader(data, sizeOfDeltaTime, 1), binary.BigEndian, &eventType)
+	sizeOfDeltaTime := len(deltaTime.Quantity().value)
+	eventType := stream[sizeOfDeltaTime]
 
-	if eventType == Meta {
+	switch eventType {
+	case Meta:
 		return parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
-	}
-	if eventType == SystemExclusive {
+	case SystemExclusive, DividedSystemExclusive:
 		return parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
+	default:
+		return parseMIDIControlEvent(stream, deltaTime, eventType)
 	}
-
-	return parseMIDIControlEvent(stream, deltaTime, eventType)
-}
-
-// parseSystemExclusiveEvent parses stream begins with 0xf0.
-func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
-	q, err := parseQuantity(stream[1:])
-	if err != nil {
-		return nil, 0, err
-	}
-
-	offset := len(deltaTime.Quantity().Value()) + 1 + len(q.value)
-	sizeOfSystemExclusiveEventData := int(q.Uint32())
-	sizeOfEvent = offset + sizeOfSystemExclusiveEventData
-
-	event = &SystemExclusiveEvent{
-		deltaTime: deltaTime,
-		data:      stream[offset : offset+sizeOfSystemExclusiveEventData],
-	}
-
-	return event, sizeOfEvent, nil
 }
 
 // parseMetaEvent parses stream begins with 0xff.
@@ -152,6 +125,26 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 	return event, sizeOfEvent, nil
 }
 
+// parseSystemExclusiveEvent parses stream begins with 0xf0 or 0xf7.
+func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
+	q, err := parseQuantity(stream[1:])
+	if err != nil {
+		return nil, 0, err
+	}
+
+	offset := 1 + len(q.value)
+	sizeOfData := int(q.Uint32())
+	sizeOfEvent = len(deltaTime.Quantity().value) + offset + sizeOfData
+
+	event = &SystemExclusiveEvent{
+		deltaTime: deltaTime,
+		data:      stream[offset : offset+sizeOfData],
+	}
+
+	return event, sizeOfEvent, nil
+}
+
+// parseMetaEvent parses stream begins with 0x8_...0xe_.
 func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
 	parameter := stream[1:3]
 	channel := uint8(eventType) & 0x0f
