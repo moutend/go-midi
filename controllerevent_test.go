@@ -42,3 +42,88 @@ func TestControllerEvent_Serialize(t *testing.T) {
 		}
 	}
 }
+
+func TestControllerEvent_SetChannel(t *testing.T) {
+	event := &ControllerEvent{}
+
+	err := event.SetChannel(0x10)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetChannel(0x0f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestControllerEvent_Channel(t *testing.T) {
+	event := &ControllerEvent{channel: 1}
+
+	expected := uint8(1)
+	actual := event.Channel()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestControllerEvent_SetControl(t *testing.T) {
+	event := &ControllerEvent{}
+
+	err := event.SetControl(0x80)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetControl(0x7f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestControllerEvent_Control(t *testing.T) {
+	event := &ControllerEvent{control: 1}
+
+	expected := uint8(1)
+	actual := event.Control()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestControllerEvent_SetValue(t *testing.T) {
+	event := &ControllerEvent{}
+
+	err := event.SetValue(0x80)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	err = event.SetValue(0x7f)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestControllerEvent_Value(t *testing.T) {
+	event := &ControllerEvent{value: 1}
+
+	expected := uint8(1)
+	actual := event.Value()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestNewControllerEvent(t *testing.T) {
+	event, err := NewControllerEvent(nil, 1, 123, 123)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if event.channel != 1 {
+		t.Fatalf("expected: 1 actual: %v", event.channel)
+	}
+	if event.control != 123 {
+		t.Fatalf("expected: 123 actual: %v", event.control)
+	}
+}
