@@ -11,7 +11,7 @@ type Event interface {
 	DeltaTime() *DeltaTime
 }
 
-// parseEvent reads stream and returns event and its size.
+// parseEvent parses stream begins with delta time.
 func parseEvent(stream []byte) (Event, int, error) {
 	deltaTime, err := parseDeltaTime(stream)
 	if err != nil {
@@ -35,6 +35,7 @@ func parseEvent(stream []byte) (Event, int, error) {
 	return parseMIDIControlEvent(stream, deltaTime, eventType)
 }
 
+// parseSystemExclusiveEvent parses stream begins with 0xf0.
 func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
 	q, err := parseQuantity(stream[1:])
 	if err != nil {
@@ -53,10 +54,19 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event
 	return event, sizeOfEvent, nil
 }
 
+// parseMetaEvent parses stream begins with 0xff.
 func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
+	q, err := parseQuantity(stream[2:])
+	if err != nil {
+		return nil, 0, err
+	}
+
+	offset := 2 + len(q.value)
+	sizeOfData := int(q.Uint32())
+	sizeOfEvent = len(deltaTime.Quantity().Value()) + offset + sizeOfData
+
 	metaEventType := stream[1]
-	sizeOfMetaEventData := int64(stream[2])
-	metaEventData := stream[3 : sizeOfMetaEventData+3]
+	metaEventData := stream[offset : offset+sizeOfData]
 
 	switch metaEventType {
 	case Text:
@@ -138,8 +148,6 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 			data:          metaEventData,
 		}
 	}
-
-	sizeOfEvent = len(deltaTime.Quantity().Value()) + 3 + int(sizeOfMetaEventData)
 
 	return event, sizeOfEvent, nil
 }
