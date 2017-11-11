@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// SequenceOrTrackNameEvent corresponds to sequence or track name meta event.
+// SequenceOrTrackNameEvent corresponds to sequence or track name event.
 type SequenceOrTrackNameEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *SequenceOrTrackNameEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of sequence or track name event.
 func (e *SequenceOrTrackNameEvent) String() string {
-	return fmt.Sprintf("&SequenceOrTrackNameEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&SequenceOrTrackNameEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes sequence or track name event.

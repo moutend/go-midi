@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// CuePointEvent corresponds to cue point meta event.
+// CuePointEvent corresponds to cue point event.
 type CuePointEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *CuePointEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of cue point event.
 func (e *CuePointEvent) String() string {
-	return fmt.Sprintf("&CuePointEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&CuePointEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes cue point event.

@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// TextEvent corresponds to text meta event.
+// TextEvent corresponds to text event.
 type TextEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *TextEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of text event.
 func (e *TextEvent) String() string {
-	return fmt.Sprintf("&TextEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&TextEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes text event.

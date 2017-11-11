@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// CopyrightNoticeEvent corresponds to copyright notice meta event.
+// CopyrightNoticeEvent corresponds to copyright notice event.
 type CopyrightNoticeEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *CopyrightNoticeEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of copyright notice event.
 func (e *CopyrightNoticeEvent) String() string {
-	return fmt.Sprintf("&CopyrightNoticeEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&CopyrightNoticeEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes copyright notice event.

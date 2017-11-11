@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// InstrumentNameEvent corresponds to instrument name meta event.
+// InstrumentNameEvent corresponds to instrument name event.
 type InstrumentNameEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *InstrumentNameEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of instrument name event.
 func (e *InstrumentNameEvent) String() string {
-	return fmt.Sprintf("&InstrumentNameEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&InstrumentNameEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes instrument name event.

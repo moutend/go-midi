@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// LyricsEvent corresponds to lyrics meta event.
+// LyricsEvent corresponds to lyrics event.
 type LyricsEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *LyricsEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of lyrics event.
 func (e *LyricsEvent) String() string {
-	return fmt.Sprintf("&LyricsEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&LyricsEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes lyrics event.

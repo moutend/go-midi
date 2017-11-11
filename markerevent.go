@@ -2,7 +2,7 @@ package midi
 
 import "fmt"
 
-// MarkerEvent corresponds to marker meta event.
+// MarkerEvent corresponds to marker event.
 type MarkerEvent struct {
 	deltaTime *DeltaTime
 	text      []byte
@@ -18,7 +18,7 @@ func (e *MarkerEvent) DeltaTime() *DeltaTime {
 
 // String returns string representation of marker event.
 func (e *MarkerEvent) String() string {
-	return fmt.Sprintf("&MarkerEvent{text: \"%v\"}", string(e.text))
+	return fmt.Sprintf("&MarkerEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes marker event.
