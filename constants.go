@@ -5,15 +5,16 @@
 package midi
 
 const (
-	NoteOff           = 0x80
-	NoteOn            = 0x90
-	NoteAfterTouch    = 0xa0
-	Controller        = 0xb0
-	ProgramChange     = 0xc0
-	ChannelAfterTouch = 0xd0
-	PitchBend         = 0xe0
-	SystemExclusive   = 0xf0
-	EndOfNormalSysEx  = 0xf7
+	NoteOff                = 0x80
+	NoteOn                 = 0x90
+	NoteAfterTouch         = 0xa0
+	Controller             = 0xb0
+	ProgramChange          = 0xc0
+	ChannelAfterTouch      = 0xd0
+	PitchBend              = 0xe0
+	SystemExclusive        = 0xf0
+	DividedSystemExclusive = 0xf7
+	Meta                   = 0xff
 )
 
 const (
