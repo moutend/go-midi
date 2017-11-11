@@ -88,9 +88,12 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 			channel:   uint8(metaEventData[0]),
 		}
 	case SetTempo:
+		tempo := uint32(metaEventData[0])
+		tempo = (tempo << 8) + uint32(metaEventData[1])
+		tempo = (tempo << 8) + uint32(metaEventData[2])
 		event = &SetTempoEvent{
 			deltaTime: deltaTime,
-			tempo:     metaEventData,
+			tempo:     tempo,
 		}
 	case SMPTEOffset:
 		event = &SMPTEOffsetEvent{
@@ -135,10 +138,19 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event
 	offset := 1 + len(q.value)
 	sizeOfData := int(q.Uint32())
 	sizeOfEvent = len(deltaTime.Quantity().value) + offset + sizeOfData
+	eventType := stream[0]
 
-	event = &SystemExclusiveEvent{
-		deltaTime: deltaTime,
-		data:      stream[offset : offset+sizeOfData],
+	switch eventType {
+	case SystemExclusive:
+		event = &SystemExclusiveEvent{
+			deltaTime: deltaTime,
+			data:      stream[offset : offset+sizeOfData],
+		}
+	case DividedSystemExclusive:
+		event = &DividedSystemExclusiveEvent{
+			deltaTime: deltaTime,
+			data:      stream[offset : offset+sizeOfData],
+		}
 	}
 
 	return event, sizeOfEvent, nil
