@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestHeaderSerialize(t *testing.T) {
+func TestHeader_Serialize(t *testing.T) {
 	td := &TimeDivision{
 		value: 480,
 	}
@@ -17,7 +17,7 @@ func TestHeaderSerialize(t *testing.T) {
 		tracks:       18,
 		timeDivision: td,
 	}
-	data := h.serialize()
+	data := h.Serialize()
 	// Header Length of the header is always 14 bytes.
 	if len(data) != 14 {
 		t.Fatalf("expected: 14 actual: %v", len(data))
@@ -47,7 +47,7 @@ func TestParseHeader(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data := header.serialize()
+	data := header.Serialize()
 
 	// Header Length of the header is always 14 bytes.
 	if len(data) != 14 {
