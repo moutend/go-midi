@@ -69,7 +69,7 @@ func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
 		data := bytes.NewReader(stream[start:])
 		binary.Read(io.NewSectionReader(data, 0, 4), binary.BigEndian, &chunkId)
 		if chunkId != MTrk {
-			return nil, fmt.Errorf("midi: invalid track ID %v", chunkId)
+			return nil, fmt.Errorf("midi: invalid track ID 0x%x", chunkId)
 		}
 
 		binary.Read(io.NewSectionReader(data, 4, 4), binary.BigEndian, &chunkSize)
