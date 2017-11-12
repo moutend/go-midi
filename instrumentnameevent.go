@@ -26,7 +26,10 @@ func (e *InstrumentNameEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
 	bs = append(bs, Meta, InstrumentName)
-	bs = append(bs, byte(len(e.Text())))
+
+	q := &Quantity{}
+	q.SetUint32(uint32(len(e.Text())))
+	bs = append(bs, q.Value()...)
 	bs = append(bs, e.Text()...)
 
 	return bs
@@ -34,8 +37,8 @@ func (e *InstrumentNameEvent) Serialize() []byte {
 
 // SetText sets text.
 func (e *InstrumentNameEvent) SetText(text []byte) error {
-	if len(text) > 127 {
-		return fmt.Errorf("midi: maximum length of text is 127 bytes")
+	if len(text) > 0xfffffff {
+		return fmt.Errorf("midi: maximum size of text is 256 MB")
 	}
 	e.text = text
 
@@ -48,7 +51,10 @@ func (e *InstrumentNameEvent) Text() []byte {
 		e.text = []byte{}
 	}
 
-	return e.text
+	text := make([]byte, len(e.text))
+	copy(text, e.text)
+
+	return text
 }
 
 // NewInstrumentNameEvent returns InstrumentNameEvent with the given parameter.
