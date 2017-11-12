@@ -24,7 +24,7 @@ func parseEvent(stream []byte) (Event, int, error) {
 	case SystemExclusive, DividedSystemExclusive:
 		return parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
 	default:
-		return parseMIDIControlEvent(stream, deltaTime, eventType)
+		return parseMIDIControlEvent(stream[sizeOfDeltaTime:], deltaTime, eventType)
 	}
 }
 
@@ -167,7 +167,7 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event
 	return event, sizeOfEvent, nil
 }
 
-// parseMetaEvent parses stream begins with 0x8_...0xe_.
+// parseMIDIControlEvent parses stream begins with 0x8_...0xe_.
 func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
 	parameter := stream[1:3]
 	channel := uint8(eventType) & 0x0f
