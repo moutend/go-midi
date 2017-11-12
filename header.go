@@ -38,7 +38,8 @@ func (h *Header) String() string {
 	return fmt.Sprintf("FormatType: %d Tracks: %d TimeDivision: %v", h.formatType, h.tracks, h.TimeDivision().String())
 }
 
-func (h *Header) serialize() []byte {
+// Serialize serializes MIDI header.
+func (h *Header) Serialize() []byte {
 	data := bytes.NewBuffer([]byte{})
 
 	binary.Write(data, binary.BigEndian, []byte("MThd"))
