@@ -5,6 +5,7 @@ import "fmt"
 // Event represents any MIDI events, including meta and system exclusive.
 type Event interface {
 	DeltaTime() *DeltaTime
+	Serialize() []byte
 }
 
 // parseEvent parses stream begins with delta time.
