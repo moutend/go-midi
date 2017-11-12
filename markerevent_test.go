@@ -45,14 +45,14 @@ func TestMarkerEvent_Serialize(t *testing.T) {
 
 func TestMarkerEvent_SetText(t *testing.T) {
 	event := &MarkerEvent{}
-	text := make([]byte, 128)
+	text := make([]byte, 0x10000000)
 
 	err := event.SetText(text)
 	if err == nil {
 		t.Fatalf("err must not be nil")
 	}
 
-	text = make([]byte, 127)
+	text = make([]byte, 0xfffffff)
 	err = event.SetText(text)
 	if err != nil {
 		t.Fatal(err)
