@@ -29,7 +29,7 @@ func TestPitchBendEvent_Serialize(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []byte{0x00, 0xe1, 0x32, 0x00}
+	expected := []byte{0x00, 0xe1, 0x00, 0x32}
 	actual := event.Serialize()
 
 	if len(expected) != len(actual) {

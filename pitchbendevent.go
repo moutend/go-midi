@@ -30,7 +30,7 @@ func (e *PitchBendEvent) Serialize() []byte {
 
 	msb := byte(e.pitch >> 7)
 	lsb := byte(e.pitch & 0x7f)
-	bs = append(bs, lsb, msb)
+	bs = append(bs, msb, lsb)
 
 	return bs
 }
