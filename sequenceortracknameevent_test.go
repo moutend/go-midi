@@ -45,15 +45,13 @@ func TestSequenceOrTrackNameEvent_Serialize(t *testing.T) {
 
 func TestSequenceOrTrackNameEvent_SetText(t *testing.T) {
 	event := &SequenceOrTrackNameEvent{}
-	text := make([]byte, 0x10000000)
 
-	err := event.SetText(text)
+	err := event.SetText(bigdata)
 	if err == nil {
 		t.Fatalf("err must not be nil")
 	}
 
-	text = make([]byte, 0xfffffff)
-	err = event.SetText(text)
+	err = event.SetText(bigdata[1:])
 	if err != nil {
 		t.Fatal(err)
 	}

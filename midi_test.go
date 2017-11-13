@@ -38,7 +38,7 @@ func TestParse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	m, err := Parse(file)
+	_, err = Parse(file)
 	if err != nil {
 		t.Fatal(err)
 	}

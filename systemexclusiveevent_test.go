@@ -45,15 +45,13 @@ func TestSystemExclusiveEvent_Serialize(t *testing.T) {
 
 func TestSystemExclusiveEvent_SetData(t *testing.T) {
 	event := &SystemExclusiveEvent{}
-	data := make([]byte, 0x10000000)
 
-	err := event.SetData(data)
+	err := event.SetData(bigdata)
 	if err == nil {
 		t.Fatalf("err must not be nil")
 	}
 
-	data = make([]byte, 100)
-	err = event.SetData(data)
+	err = event.SetData(bigdata[1:])
 	if err != nil {
 		t.Fatal(err)
 	}
