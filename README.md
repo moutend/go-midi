@@ -2,7 +2,7 @@ go-midi
 ========
 
 [![GitHub release](https://img.shields.io/github/release/moutend/go-midi.svg?style=flat-square)][release]
-[![CircleCI](https://circleci.com/gh/moutend/go-midi.svg?style=svg&circle-token=e3db72ca7a0c643a8c7ed00d0d6b6ad36f4c70df)](https://circleci.com/gh/moutend/go-midi)
+[![CircleCI](https://circleci.com/gh/moutend/go-midi.svg?style=svg&circle-token=a6c22e24f682d959debf990b6c9596c7d65f9eb2)][status]
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 
 [release]: https://github.com/moutend/go-midi/releases
