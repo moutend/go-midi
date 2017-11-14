@@ -224,132 +224,132 @@ const (
 type GM uint16
 
 const (
-	AcousticGrandPiano  GM = 0x00
-	BrightAcousticPiano GM = 0x01
-	ElectricGrandPiano  GM = 0x02
-	HonkyTonkPiano      GM = 0x03
-	ElectricPiano1      GM = 0x04
-	ElectricPiano2      GM = 0x05
-	Harpsichord         GM = 0x06
-	Clavi               GM = 0x07
-	Celesta             GM = 0x08
-	Glockenspiel        GM = 0x09
-	MusicBox            GM = 0x0a
-	Vibraphone          GM = 0x0b
-	Marimba             GM = 0x0c
-	Xylophone           GM = 0x0d
-	TubularBells        GM = 0x0e
-	Dulcimer            GM = 0x0f
-	DrawbarOrgan        GM = 0x10
-	PercussiveOrgan     GM = 0x11
-	RockOrgan           GM = 0x12
-	ChurchOrgan         GM = 0x13
-	ReedOrgan           GM = 0x14
-	Accordion           GM = 0x15
-	Harmonica           GM = 0x16
-	TangoAccordion      GM = 0x17
-	AcousticNylonGuitar GM = 0x18
-	AcousticSteelGuitar GM = 0x19
-	ElectricJazzGuitar  GM = 0x1a
-	ElectricCleanGuitar GM = 0x1b
-	ElectricMutedGuitar GM = 0x1c
-	OverdrivenGuitar    GM = 0x1d
-	DistortionGuitar    GM = 0x1e
-	GuitarHarmonics     GM = 0x1f
-	AcousticBass        GM = 0x20
-	ElectricFingerBass  GM = 0x21
-	ElectricPickBass    GM = 0x22
-	FretlessBass        GM = 0x23
-	SlapBass1           GM = 0x24
-	SlapBass2           GM = 0x25
-	SynthBass1          GM = 0x26
-	SynthBass2          GM = 0x27
-	Violin              GM = 0x28
-	Viola               GM = 0x29
-	Cello               GM = 0x2a
-	Contrabass          GM = 0x2b
-	TremoloStrings      GM = 0x2c
-	PizzicatoStrings    GM = 0x2d
-	OrchestralHarp      GM = 0x2e
-	Timpani             GM = 0x2f
-	StringEnsemble1     GM = 0x30
-	StringEnsemble2     GM = 0x31
-	SynthStrings1       GM = 0x32
-	SynthStrings2       GM = 0x33
-	ChoirAahs           GM = 0x34
-	VoiceOohs           GM = 0x35
-	SynthVoice          GM = 0x36
-	OrchestraHit        GM = 0x37
-	Trumpet             GM = 0x38
-	Trombone            GM = 0x39
-	Tuba                GM = 0x3a
-	MutedTrumpet        GM = 0x3b
-	FrenchHorn          GM = 0x3c
-	BrassSection        GM = 0x3d
-	SynthBrass1         GM = 0x3e
-	SynthBrass2         GM = 0x3f
-	SopranoSax          GM = 0x40
-	AltoSax             GM = 0x41
-	TenorSax            GM = 0x42
-	BaritoneSax         GM = 0x43
-	Oboe                GM = 0x44
-	EnglishHorn         GM = 0x45
-	Bassoon             GM = 0x46
-	Clarinet            GM = 0x47
-	Piccolo             GM = 0x48
-	Flute               GM = 0x49
-	Recorder            GM = 0x4a
-	PanFlute            GM = 0x4b
-	BlownBottle         GM = 0x4c
-	Shakuhachi          GM = 0x4d
-	Whistle             GM = 0x4e
-	Ocarina             GM = 0x4f
-	Lead1Square         GM = 0x50
-	Lead2Sawtooth       GM = 0x51
-	Lead3Calliope       GM = 0x52
-	Lead4Chiff          GM = 0x53
-	Lead5Charang        GM = 0x54
-	Lead6Voice          GM = 0x55
-	Lead7Fifths         GM = 0x56
-	Lead8BassLead       GM = 0x57
-	Pad1NewAge          GM = 0x58
-	Pad2Warm            GM = 0x59
-	Pad3Polysynth       GM = 0x5a
-	Pad4Choir           GM = 0x5b
-	Pad5Bowed           GM = 0x5c
-	Pad6Metallic        GM = 0x5d
-	Pad7Halo            GM = 0x5e
-	Pad8Sweep           GM = 0x5f
-	FX1Rain             GM = 0x60
-	FX2Soundtrack       GM = 0x61
-	FX3Crystal          GM = 0x62
-	FX4Atmosphere       GM = 0x63
-	FX5Brightness       GM = 0x64
-	FX6Goblins          GM = 0x65
-	FX7Echoes           GM = 0x66
-	FX8SciFi            GM = 0x67
-	Sitar               GM = 0x68
-	Banjo               GM = 0x69
-	Shamisen            GM = 0x6a
-	Koto                GM = 0x6b
-	Kalimba             GM = 0x6c
-	Bagpipe             GM = 0x6d
-	Fiddle              GM = 0x6e
-	Shanai              GM = 0x6f
-	TinkleBell          GM = 0x70
-	Agogo               GM = 0x71
-	SteelDrums          GM = 0x72
-	Woodblock           GM = 0x73
-	TaikoDrum           GM = 0x74
-	MelodicTom          GM = 0x75
-	SynthDrum           GM = 0x76
-	ReverseCymbal       GM = 0x77
-	GuitarFretNoise     GM = 0x78
-	BreathNoise         GM = 0x79
-	Seashore            GM = 0x7a
-	BirdTweet           GM = 0x7b
-	TelephoneRing       GM = 0x7c
-	Helicopter          GM = 0x7d
-	Applause            GM = 0x7e
-	Gunshot             GM = 0x7f
+	AcousticGrandPiano GM = iota
+	BrightAcousticPiano
+	ElectricGrandPiano
+	HonkyTonkPiano
+	ElectricPiano1
+	ElectricPiano2
+	Harpsichord
+	Clavi
+	Celesta
+	Glockenspiel
+	MusicBox
+	Vibraphone
+	Marimba
+	Xylophone
+	TubularBells
+	Dulcimer
+	DrawbarOrgan
+	PercussiveOrgan
+	RockOrgan
+	ChurchOrgan
+	ReedOrgan
+	Accordion
+	Harmonica
+	TangoAccordion
+	AcousticNylonGuitar
+	AcousticSteelGuitar
+	ElectricJazzGuitar
+	ElectricCleanGuitar
+	ElectricMutedGuitar
+	OverdrivenGuitar
+	DistortionGuitar
+	GuitarHarmonics
+	AcousticBass
+	ElectricFingerBass
+	ElectricPickBass
+	FretlessBass
+	SlapBass1
+	SlapBass2
+	SynthBass1
+	SynthBass2
+	Violin
+	Viola
+	Cello
+	Contrabass
+	TremoloStrings
+	PizzicatoStrings
+	OrchestralHarp
+	Timpani
+	StringEnsemble1
+	StringEnsemble2
+	SynthStrings1
+	SynthStrings2
+	ChoirAahs
+	VoiceOohs
+	SynthVoice
+	OrchestraHit
+	Trumpet
+	Trombone
+	Tuba
+	MutedTrumpet
+	FrenchHorn
+	BrassSection
+	SynthBrass1
+	SynthBrass2
+	SopranoSax
+	AltoSax
+	TenorSax
+	BaritoneSax
+	Oboe
+	EnglishHorn
+	Bassoon
+	Clarinet
+	Piccolo
+	Flute
+	Recorder
+	PanFlute
+	BlownBottle
+	Shakuhachi
+	Whistle
+	Ocarina
+	Lead1Square
+	Lead2Sawtooth
+	Lead3Calliope
+	Lead4Chiff
+	Lead5Charang
+	Lead6Voice
+	Lead7Fifths
+	Lead8BassLead
+	Pad1NewAge
+	Pad2Warm
+	Pad3Polysynth
+	Pad4Choir
+	Pad5Bowed
+	Pad6Metallic
+	Pad7Halo
+	Pad8Sweep
+	FX1Rain
+	FX2Soundtrack
+	FX3Crystal
+	FX4Atmosphere
+	FX5Brightness
+	FX6Goblins
+	FX7Echoes
+	FX8SciFi
+	Sitar
+	Banjo
+	Shamisen
+	Koto
+	Kalimba
+	Bagpipe
+	Fiddle
+	Shanai
+	TinkleBell
+	Agogo
+	SteelDrums
+	Woodblock
+	TaikoDrum
+	MelodicTom
+	SynthDrum
+	ReverseCymbal
+	GuitarFretNoise
+	BreathNoise
+	Seashore
+	BirdTweet
+	TelephoneRing
+	Helicopter
+	Applause
+	Gunshot
 )
