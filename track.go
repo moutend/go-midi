@@ -31,8 +31,9 @@ func (t *Track) Serialize() []byte {
 }
 
 func parseTrack(stream []byte) (*Track, error) {
-	var start int
+	logger.Println("midi: start parsing track")
 
+	start := 0
 	sizeOfStream := len(stream)
 	track := &Track{
 		Events: []Event{},
@@ -50,6 +51,8 @@ func parseTrack(stream []byte) (*Track, error) {
 
 		switch event.(type) {
 		case *EndOfTrackEvent:
+			logger.Println("midi: done parsing track")
+
 			return track, nil
 		}
 	}
@@ -58,6 +61,8 @@ func parseTrack(stream []byte) (*Track, error) {
 }
 
 func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
+	logger.Printf("midi: start parsing %v track(s)", numberOfTracks)
+
 	const MTrk uint32 = 0x4d54726B
 	var chunkId uint32
 	var start int64
@@ -80,6 +85,8 @@ func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
 		tracks[n] = track
 		start += int64(chunkSize + 8)
 	}
+
+	logger.Printf("midi: done parsing %v track(s)", numberOfTracks)
 
 	return tracks, nil
 }
