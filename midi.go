@@ -1,5 +1,7 @@
 package midi
 
+import "log"
+
 // MIDI represents standard MIDI data.
 type MIDI struct {
 	Header *Header
@@ -35,4 +37,11 @@ func Parse(stream []byte) (*MIDI, error) {
 	}
 
 	return midi, nil
+}
+
+// SetLogger sets logger for debugging.
+func SetLogger(l *log.Logger) {
+	if l != nil {
+		logger = l
+	}
 }
