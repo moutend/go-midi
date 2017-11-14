@@ -39,134 +39,134 @@ const (
 type Note byte
 
 const (
-	Cminus2  Note = 0x00
-	Dbminus2 Note = 0x01
-	Dminus2  Note = 0x02
-	Ebminus2 Note = 0x03
-	Eminus2  Note = 0x04
-	Fminus2  Note = 0x05
-	Gbminus2 Note = 0x06
-	Gminus2  Note = 0x07
-	Abminus2 Note = 0x08
-	Aminus2  Note = 0x09
-	Bbminus2 Note = 0x0a
-	Bminus2  Note = 0x0b
-	Cminus1  Note = 0x0c
-	Dbminus1 Note = 0x0d
-	Dminus1  Note = 0x0e
-	Ebminus1 Note = 0x0f
-	Eminus1  Note = 0x10
-	Fminus1  Note = 0x11
-	Gbminus1 Note = 0x12
-	Gminus1  Note = 0x13
-	Abminus1 Note = 0x14
-	Aminus1  Note = 0x15
-	Bbminus1 Note = 0x16
-	Bminus1  Note = 0x17
-	C0       Note = 0x18
-	Db0      Note = 0x19
-	D0       Note = 0x1a
-	Eb0      Note = 0x1b
-	E0       Note = 0x1c
-	F0       Note = 0x1d
-	Gb0      Note = 0x1e
-	G0       Note = 0x1f
-	Ab0      Note = 0x20
-	A0       Note = 0x21
-	Bb0      Note = 0x22
-	B0       Note = 0x23
-	C1       Note = 0x24
-	Db1      Note = 0x25
-	D1       Note = 0x26
-	Eb1      Note = 0x27
-	E1       Note = 0x28
-	F1       Note = 0x29
-	Gb1      Note = 0x2a
-	G1       Note = 0x2b
-	Ab1      Note = 0x2c
-	A1       Note = 0x2d
-	Bb1      Note = 0x2e
-	B1       Note = 0x2f
-	C2       Note = 0x30
-	Db2      Note = 0x31
-	D2       Note = 0x32
-	Eb2      Note = 0x33
-	E2       Note = 0x34
-	F2       Note = 0x35
-	Gb2      Note = 0x36
-	G2       Note = 0x37
-	Ab2      Note = 0x38
-	A2       Note = 0x39
-	Bb2      Note = 0x3a
-	B2       Note = 0x3b
-	C3       Note = 0x3c
-	Db3      Note = 0x3d
-	D3       Note = 0x3e
-	Eb3      Note = 0x3f
-	E3       Note = 0x40
-	F3       Note = 0x41
-	Gb3      Note = 0x42
-	G3       Note = 0x43
-	Ab3      Note = 0x44
-	A3       Note = 0x45
-	Bb3      Note = 0x46
-	B3       Note = 0x47
-	C4       Note = 0x48
-	Db4      Note = 0x49
-	D4       Note = 0x4a
-	Eb4      Note = 0x4b
-	E4       Note = 0x4c
-	F4       Note = 0x4d
-	Gb4      Note = 0x4e
-	G4       Note = 0x4f
-	Ab4      Note = 0x50
-	A4       Note = 0x51
-	Bb4      Note = 0x52
-	B4       Note = 0x53
-	C5       Note = 0x54
-	Db5      Note = 0x55
-	D5       Note = 0x56
-	Eb5      Note = 0x57
-	E5       Note = 0x58
-	F5       Note = 0x59
-	Gb5      Note = 0x5a
-	G5       Note = 0x5b
-	Ab5      Note = 0x5c
-	A5       Note = 0x5d
-	Bb5      Note = 0x5e
-	B5       Note = 0x5f
-	C6       Note = 0x60
-	Db6      Note = 0x61
-	D6       Note = 0x62
-	Eb6      Note = 0x63
-	E6       Note = 0x64
-	F6       Note = 0x65
-	Gb6      Note = 0x66
-	G6       Note = 0x67
-	Ab6      Note = 0x68
-	A6       Note = 0x69
-	Bb6      Note = 0x6a
-	B6       Note = 0x6b
-	C7       Note = 0x6c
-	Db7      Note = 0x6d
-	D7       Note = 0x6e
-	Eb7      Note = 0x6f
-	E7       Note = 0x70
-	F7       Note = 0x71
-	Gb7      Note = 0x72
-	G7       Note = 0x73
-	Ab7      Note = 0x74
-	A7       Note = 0x75
-	Bb7      Note = 0x76
-	B7       Note = 0x77
-	C8       Note = 0x78
-	Db8      Note = 0x79
-	D8       Note = 0x7a
-	Eb8      Note = 0x7b
-	E8       Note = 0x7c
-	F8       Note = 0x7d
-	Gb8      Note = 0x7e
-	G8       Note = 0x7f
+	Cminus2 Note = iota
+	Dbminus2
+	Dminus2
+	Ebminus2
+	Eminus2
+	Fminus2
+	Gbminus2
+	Gminus2
+	Abminus2
+	Aminus2
+	Bbminus2
+	Bminus2
+	Cminus1
+	Dbminus1
+	Dminus1
+	Ebminus1
+	Eminus1
+	Fminus1
+	Gbminus1
+	Gminus1
+	Abminus1
+	Aminus1
+	Bbminus1
+	Bminus1
+	C0
+	Db0
+	D0
+	Eb0
+	E0
+	F0
+	Gb0
+	G0
+	Ab0
+	A0
+	Bb0
+	B0
+	C1
+	Db1
+	D1
+	Eb1
+	E1
+	F1
+	Gb1
+	G1
+	Ab1
+	A1
+	Bb1
+	B1
+	C2
+	Db2
+	D2
+	Eb2
+	E2
+	F2
+	Gb2
+	G2
+	Ab2
+	A2
+	Bb2
+	B2
+	C3
+	Db3
+	D3
+	Eb3
+	E3
+	F3
+	Gb3
+	G3
+	Ab3
+	A3
+	Bb3
+	B3
+	C4
+	Db4
+	D4
+	Eb4
+	E4
+	F4
+	Gb4
+	G4
+	Ab4
+	A4
+	Bb4
+	B4
+	C5
+	Db5
+	D5
+	Eb5
+	E5
+	F5
+	Gb5
+	G5
+	Ab5
+	A5
+	Bb5
+	B5
+	C6
+	Db6
+	D6
+	Eb6
+	E6
+	F6
+	Gb6
+	G6
+	Ab6
+	A6
+	Bb6
+	B6
+	C7
+	Db7
+	D7
+	Eb7
+	E7
+	F7
+	Gb7
+	G7
+	Ab7
+	A7
+	Bb7
+	B7
+	C8
+	Db8
+	D8
+	Eb8
+	E8
+	F8
+	Gb8
+	G8
 )
 
 type Rhythm uint16
