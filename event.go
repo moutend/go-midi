@@ -226,7 +226,7 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 			pitch:     pitch,
 		}
 	default:
-		return nil, 0, fmt.Errorf("midi: invalid MIDI control event")
+		return nil, 0, fmt.Errorf("midi: invalid MIDI control event (0x%x)", eventType)
 	}
 
 	sizeOfEvent = len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
