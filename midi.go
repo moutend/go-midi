@@ -38,7 +38,7 @@ func Parse(stream []byte) (*MIDI, error) {
 		Tracks: tracks,
 	}
 
-	logger.Println("midi: done parsing")
+	logger.Println("successfully done")
 
 	return midi, nil
 }
