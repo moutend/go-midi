@@ -232,11 +232,9 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 			pitch:     pitch,
 		}
 	default:
-		// assumes MIDI controller event
-		sizeOfEvent = 2
-		event = &ControllerEvent{
+		sizeOfMIDIControlEvent = 2
+		event = &ContinuousControllerEvent{
 			deltaTime: deltaTime,
-			channel:   0,
 			control:   uint8(stream[0]),
 			value:     uint8(stream[1]),
 		}
