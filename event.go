@@ -1,7 +1,5 @@
 package midi
 
-import "fmt"
-
 // Event represents any MIDI events, including meta and system exclusive.
 type Event interface {
 	DeltaTime() *DeltaTime
@@ -234,7 +232,14 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 			pitch:     pitch,
 		}
 	default:
-		return nil, 0, fmt.Errorf("midi: invalid MIDI control event (0x%x)", eventType)
+		// assumes MIDI controller event
+		sizeOfEvent = 2
+		event = &ControllerEvent{
+			deltaTime: deltaTime,
+			channel:   0,
+			control:   uint8(stream[0]),
+			value:     uint8(stream[1]),
+		}
 	}
 
 	sizeOfEvent = len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
