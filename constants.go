@@ -353,3 +353,70 @@ const (
 	Applause
 	Gunshot
 )
+
+const (
+	BankSelect                      = 0x00
+	Modulation                      = 0x01
+	BreathController                = 0x02
+	FootController                  = 0x04
+	PortamentoTime                  = 0x05
+	DataEntry                       = 0x06
+	MainVolume                      = 0x07
+	Balance                         = 0x08
+	Pan                             = 0x0a
+	Expression                      = 0x0b
+	EffectControl1                  = 0x0c
+	EffectControl2                  = 0x0d
+	GeneralPurposeController1       = 0x10
+	GeneralPurposeController2       = 0x11
+	GeneralPurposeController3       = 0x12
+	GeneralPurposeController4       = 0x13
+	BankSelectLSB                   = 0x20
+	ModulationLSB                   = 0x21
+	BreathControllerLSB             = 0x22
+	FootControllerLSB               = 0x24
+	PortamentoTimeLSB               = 0x25
+	DataEntryLSB                    = 0x26
+	MainVolumeLSB                   = 0x27
+	BalanceLSB                      = 0x28
+	PanLSB                          = 0x2a
+	ExpressionLSB                   = 0x2b
+	EffectControl1LSB               = 0x2c
+	EffectControl2LSB               = 0x2d
+	GeneralPurposeController1LSB    = 0x30
+	GeneralPurposeController2LSB    = 0x31
+	GeneralPurposeController3LSB    = 0x32
+	GeneralPurposeController4LSB    = 0x33
+	Hold1                           = 0x40
+	PortamentoOnOff                 = 0x41
+	Sostenuto                       = 0x42
+	SoftPedal                       = 0x43
+	LegatoFootswitch                = 0x44
+	Hold2                           = 0x45
+	SoundVariation                  = 0x46
+	HarmonicIntensity               = 0x47
+	ReleaseTime                     = 0x48
+	AttackTime                      = 0x49
+	Brightness                      = 0x4a
+	DecayTime                       = 0x4b
+	VibratoRate                     = 0x4c
+	VibratoDepth                    = 0x4d
+	VibratoDelay                    = 0x4e
+	UndefinedSoundController        = 0x4f
+	GeneralPurposeController5       = 0x50
+	GeneralPurposeController6       = 0x51
+	GeneralPurposeController7       = 0x52
+	GeneralPurposeController8       = 0x53
+	PortamentoControl               = 0x54
+	ReverbSendLevel                 = 0x5b
+	TremoloDepth                    = 0x5c
+	ChorusSendLevel                 = 0x5d
+	CelesteDepth                    = 0x5e
+	PhaserDepth                     = 0x5f
+	DataIncrement                   = 0x60
+	DataDecrement                   = 0x61
+	NonRegisteredParameterNumberLSB = 0x62
+	NonRegisteredParameterNumberMSB = 0x63
+	RegisteredParameterNumberLSB    = 0x64
+	RegisteredParameterNumberMSB    = 0x65
+)
