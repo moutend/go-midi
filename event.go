@@ -22,17 +22,12 @@ func parseEvent(stream []byte) (event Event, sizeOfEvent int, err error) {
 
 	switch eventType {
 	case Meta:
-		event, sizeOfEvent, err = parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
+		return parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
 	case SystemExclusive, DividedSystemExclusive:
-		event, sizeOfEvent, err = parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
+		return parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
 	default:
-		event, sizeOfEvent, err = parseMIDIControlEvent(stream[sizeOfDeltaTime:], deltaTime, eventType)
+		return parseMIDIControlEvent(stream[sizeOfDeltaTime:], deltaTime, eventType)
 	}
-
-	logger.parsedBytes += sizeOfEvent
-	logger.Printf("parsing event completed (event = %v)", event)
-
-	return event, sizeOfEvent, err
 }
 
 // parseMetaEvent parses stream begins with 0xff.
@@ -143,6 +138,9 @@ func parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEve
 		}
 	}
 
+	logger.parsedBytes += sizeOfEvent
+	logger.Printf("parsing event completed (event = %v)", event)
+
 	return event, sizeOfEvent, nil
 }
 
@@ -170,6 +168,9 @@ func parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event
 			data:      stream[offset : offset+sizeOfData],
 		}
 	}
+
+	logger.parsedBytes += sizeOfEvent
+	logger.Printf("parsing event completed (event = %v)", event)
 
 	return event, sizeOfEvent, nil
 }
@@ -237,6 +238,9 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 	}
 
 	sizeOfEvent = len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
+
+	logger.parsedBytes += sizeOfEvent
+	logger.Printf("parsing event completed (event = %v)", event)
 
 	return event, sizeOfEvent, nil
 }
