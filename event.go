@@ -9,7 +9,9 @@ type Event interface {
 }
 
 // parseEvent parses stream begins with delta time.
-func parseEvent(stream []byte) (Event, int, error) {
+func parseEvent(stream []byte) (event Event, sizeOfEvent int, err error) {
+	logger.Println("start parsing event")
+
 	deltaTime, err := parseDeltaTime(stream)
 	if err != nil {
 		return nil, 0, err
@@ -20,12 +22,17 @@ func parseEvent(stream []byte) (Event, int, error) {
 
 	switch eventType {
 	case Meta:
-		return parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
+		event, sizeOfEvent, err = parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
 	case SystemExclusive, DividedSystemExclusive:
-		return parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
+		event, sizeOfEvent, err = parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
 	default:
-		return parseMIDIControlEvent(stream[sizeOfDeltaTime:], deltaTime, eventType)
+		event, sizeOfEvent, err = parseMIDIControlEvent(stream[sizeOfDeltaTime:], deltaTime, eventType)
 	}
+
+	logger.parsedBytes += sizeOfEvent
+	logger.Printf("parsing event completed (event = %v)", event)
+
+	return event, sizeOfEvent, err
 }
 
 // parseMetaEvent parses stream begins with 0xff.

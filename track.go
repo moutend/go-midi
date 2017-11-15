@@ -31,8 +31,6 @@ func (t *Track) Serialize() []byte {
 }
 
 func parseTrack(stream []byte) (*Track, error) {
-	logger.Println("midi: start parsing track")
-
 	start := 0
 	sizeOfStream := len(stream)
 	track := &Track{
@@ -42,6 +40,7 @@ func parseTrack(stream []byte) (*Track, error) {
 		if start >= sizeOfStream {
 			break
 		}
+
 		event, sizeOfEvent, err := parseEvent(stream[start:])
 		if err != nil {
 			return nil, err
@@ -51,8 +50,6 @@ func parseTrack(stream []byte) (*Track, error) {
 
 		switch event.(type) {
 		case *EndOfTrackEvent:
-			logger.Println("midi: done parsing track")
-
 			return track, nil
 		}
 	}
@@ -61,8 +58,6 @@ func parseTrack(stream []byte) (*Track, error) {
 }
 
 func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
-	logger.Printf("midi: start parsing %v track(s)", numberOfTracks)
-
 	const MTrk uint32 = 0x4d54726B
 	var chunkId uint32
 	var start int64
@@ -71,6 +66,7 @@ func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
 	tracks := make([]*Track, numberOfTracks)
 
 	for n := 0; n < numberOfTracks; n++ {
+		logger.Println("start parsing MTrk and size of track")
 		data := bytes.NewReader(stream[start:])
 		binary.Read(io.NewSectionReader(data, 0, 4), binary.BigEndian, &chunkId)
 		if chunkId != MTrk {
@@ -78,6 +74,9 @@ func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
 		}
 
 		binary.Read(io.NewSectionReader(data, 4, 4), binary.BigEndian, &chunkSize)
+
+		logger.parsedBytes += 8
+		logger.Println("parsing MTrk and size of track completed")
 		track, err := parseTrack(stream[start+8:])
 		if err != nil {
 			return nil, err
@@ -85,8 +84,6 @@ func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
 		tracks[n] = track
 		start += int64(chunkSize + 8)
 	}
-
-	logger.Printf("midi: done parsing %v track(s)", numberOfTracks)
 
 	return tracks, nil
 }

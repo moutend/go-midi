@@ -9,8 +9,6 @@ go-midi
 [status]: https://circleci.com/gh/moutend/go-midi
 [license]: https://github.com/moutend/go-midi/blob/master/LICENSE
 
-WIP
-
 Package midi implements reading and writing standard MIDI file.
 
 ## Installation

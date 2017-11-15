@@ -19,6 +19,10 @@ func (h *Header) FormatType() int {
 	return int(h.formatType)
 }
 
+func (h *Header) SetTracks(tracks uint16) {
+	h.tracks = tracks
+}
+
 // Tracks returns number of tracks.
 func (h *Header) Tracks() int {
 	return int(h.tracks)
@@ -52,6 +56,8 @@ func (h *Header) Serialize() []byte {
 }
 
 func parseHeader(stream []byte) (*Header, error) {
+	logger.Println("start parsing header")
+
 	const MThd uint32 = 0x4d546864
 	var chunkId uint32
 	var timeDivision uint16
@@ -67,6 +73,10 @@ func parseHeader(stream []byte) (*Header, error) {
 	binary.Read(io.NewSectionReader(data, 10, 2), binary.BigEndian, &header.tracks)
 	binary.Read(io.NewSectionReader(data, 12, 2), binary.BigEndian, &timeDivision)
 	header.TimeDivision().Set(timeDivision)
+
+	// MIDI header is always 14 bytes.
+	logger.parsedBytes += 14
+	logger.Println("parsing header completed")
 
 	return header, nil
 }
