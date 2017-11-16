@@ -206,7 +206,7 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 		event = &ControllerEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			control:   uint8(parameter[0]),
+			control:   Control(parameter[0]),
 			value:     uint8(parameter[1]),
 		}
 	case ProgramChange:

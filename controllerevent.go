@@ -6,7 +6,7 @@ import "fmt"
 type ControllerEvent struct {
 	deltaTime *DeltaTime
 	channel   uint8
-	control   uint8
+	control   Control
 	value     uint8
 }
 
@@ -28,7 +28,7 @@ func (e *ControllerEvent) Serialize() []byte {
 	bs := []byte{}
 	bs = append(bs, e.DeltaTime().Quantity().Value()...)
 	bs = append(bs, Controller+e.channel)
-	bs = append(bs, e.control, e.value)
+	bs = append(bs, byte(e.control), e.value)
 
 	return bs
 }
@@ -49,7 +49,7 @@ func (e *ControllerEvent) Channel() uint8 {
 }
 
 // SetControl sets control.
-func (e *ControllerEvent) SetControl(control uint8) error {
+func (e *ControllerEvent) SetControl(control Control) error {
 	if control > 0x7f {
 		return fmt.Errorf("midi: maximum value of control is 127 (0x7f)")
 	}
@@ -59,7 +59,7 @@ func (e *ControllerEvent) SetControl(control uint8) error {
 }
 
 // Control returns control.
-func (e *ControllerEvent) Control() uint8 {
+func (e *ControllerEvent) Control() Control {
 	return e.control
 }
 
@@ -79,7 +79,7 @@ func (e *ControllerEvent) Value() uint8 {
 }
 
 // NewControllerEvent returns ControllerEvent with the given parameter.
-func NewControllerEvent(deltaTime *DeltaTime, channel byte, control, value uint8) (*ControllerEvent, error) {
+func NewControllerEvent(deltaTime *DeltaTime, channel uint8, control Control, value uint8) (*ControllerEvent, error) {
 	var err error
 
 	event := &ControllerEvent{}

@@ -16,7 +16,7 @@ func TestControllerEvent_String(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := "&ControllerEvent{channel: 1, control: 12, value: 34}"
+	expected := "&ControllerEvent{channel: 1, control: EffectControl1, value: 34}"
 	actual := event.String()
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -83,7 +83,7 @@ func TestControllerEvent_SetControl(t *testing.T) {
 func TestControllerEvent_Control(t *testing.T) {
 	event := &ControllerEvent{control: 1}
 
-	expected := uint8(1)
+	expected := Control(1)
 	actual := event.Control()
 
 	if expected != actual {
