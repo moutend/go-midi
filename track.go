@@ -1,11 +1,6 @@
 package midi
 
-import (
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"io"
-)
+import "fmt"
 
 // Track represents MIDI track.
 type Track struct {
@@ -57,32 +52,42 @@ func parseTrack(stream []byte) (*Track, error) {
 	return nil, fmt.Errorf("midi: missing end of track event")
 }
 
+// parseTracks parses stream begins with MTrk.
 func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
-	const MTrk uint32 = 0x4d54726B
-	var chunkId uint32
-	var start int64
-	var chunkSize uint32
-
+	start := 0
 	tracks := make([]*Track, numberOfTracks)
 
 	for n := 0; n < numberOfTracks; n++ {
-		logger.Println("start parsing MTrk and size of track")
-		data := bytes.NewReader(stream[start:])
-		binary.Read(io.NewSectionReader(data, 0, 4), binary.BigEndian, &chunkId)
-		if chunkId != MTrk {
-			return nil, fmt.Errorf("midi: invalid track ID 0x%x", chunkId)
+		logger.Println("start parsing MTrk", start)
+		if string(stream[start:start+4]) != "MTrk" {
+			return nil, fmt.Errorf("midi: invalid track ID %v", stream[start:start+4])
 		}
 
-		binary.Read(io.NewSectionReader(data, 4, 4), binary.BigEndian, &chunkSize)
+		start += 4
+		logger.parsedBytes += 4
+		logger.Println("parsing MTrk completed")
 
-		logger.parsedBytes += 8
-		logger.Println("parsing MTrk and size of track completed")
-		track, err := parseTrack(stream[start+8:])
+		logger.Println("start parsing size of track")
+
+		chunkSize := uint32(stream[start])
+		chunkSize = chunkSize << 8
+		chunkSize += uint32(stream[start+1])
+		chunkSize = chunkSize << 8
+		chunkSize += uint32(stream[start+2])
+		chunkSize = chunkSize << 8
+		chunkSize += uint32(stream[start+3])
+
+		start += 4
+		logger.parsedBytes += 4
+		logger.Printf("parsing size of track completed (chunkSize=%v)", chunkSize)
+
+		track, err := parseTrack(stream[start:])
 		if err != nil {
 			return nil, err
 		}
+
 		tracks[n] = track
-		start += int64(chunkSize + 8)
+		start += int(chunkSize)
 	}
 
 	return tracks, nil
