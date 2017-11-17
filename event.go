@@ -214,7 +214,7 @@ func parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) 
 		event = &ProgramChangeEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			program:   uint8(parameter[0]),
+			program:   GM(parameter[0]),
 		}
 	case ChannelAfterTouch:
 		sizeOfMIDIControlEvent = 2

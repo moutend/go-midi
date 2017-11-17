@@ -16,7 +16,7 @@ func TestProgramChangeEvent_String(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := "&ProgramChangeEvent{channel: 1, program: 50}"
+	expected := "&ProgramChangeEvent{channel: 1, program: SynthStrings1}"
 	actual := event.String()
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -83,7 +83,7 @@ func TestProgramChangeEvent_SetProgram(t *testing.T) {
 func TestProgramChangeEvent_Program(t *testing.T) {
 	event := &ProgramChangeEvent{program: 1}
 
-	expected := uint8(1)
+	expected := GM(1)
 	actual := event.Program()
 
 	if expected != actual {
