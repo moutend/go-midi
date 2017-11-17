@@ -58,7 +58,7 @@ func parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
 	tracks := make([]*Track, numberOfTracks)
 
 	for n := 0; n < numberOfTracks; n++ {
-		logger.Println("start parsing MTrk", start)
+		logger.Println("start parsing MTrk")
 		if string(stream[start:start+4]) != "MTrk" {
 			return nil, fmt.Errorf("midi: invalid track ID %v", stream[start:start+4])
 		}
