@@ -21,6 +21,7 @@ func (m *MIDI) Serialize() []byte {
 
 // Parse parses standard MIDI (*.mid) stream.
 func Parse(stream []byte) (*MIDI, error) {
+	logger.parsedBytes = 0
 	logger.Logger.Printf("midi: start parsing %v bytes\n", len(stream))
 
 	header, err := parseHeader(stream)
