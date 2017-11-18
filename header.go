@@ -1,11 +1,6 @@
 package midi
 
-import (
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"io"
-)
+import "fmt"
 
 // Header represents MIDI header. It contains format type, number of tracks and time division.
 type Header struct {
@@ -44,39 +39,67 @@ func (h *Header) String() string {
 
 // Serialize serializes MIDI header.
 func (h *Header) Serialize() []byte {
-	data := bytes.NewBuffer([]byte{})
+	bs := []byte("MThd")
+	bs = append(bs, 0x00, 0x00, 0x00, 0x06)
+	bs = append(bs, 0x00, byte(h.formatType&0xff))
+	bs = append(bs, byte((h.tracks>>8)&0xff))
+	bs = append(bs, byte(h.tracks&0xff))
+	bs = append(bs, h.TimeDivision().Serialize()...)
 
-	binary.Write(data, binary.BigEndian, []byte("MThd"))
-	binary.Write(data, binary.BigEndian, uint32(6))
-	binary.Write(data, binary.BigEndian, h.formatType)
-	binary.Write(data, binary.BigEndian, h.tracks)
-	binary.Write(data, binary.BigEndian, h.timeDivision.value)
-
-	return data.Bytes()
+	return bs
 }
 
+// parseHeader parses stream begins with MThd.
 func parseHeader(stream []byte) (*Header, error) {
-	logger.Println("start parsing header")
+	var start int
 
-	const MThd uint32 = 0x4d546864
-	var chunkId uint32
-	var timeDivision uint16
+	logger.Println("start parsing MThd")
 
-	header := &Header{}
-	data := bytes.NewReader(stream)
-	binary.Read(io.NewSectionReader(data, 0, 4), binary.BigEndian, &chunkId)
-	if chunkId != MThd {
-		return nil, fmt.Errorf("midi: invalid chunk ID for header: %x", chunkId)
+	if string(stream[:4]) != "MThd" {
+		return nil, fmt.Errorf("midi: invalid chunk ID %v", stream[:4])
 	}
 
-	binary.Read(io.NewSectionReader(data, 8, 2), binary.BigEndian, &header.formatType)
-	binary.Read(io.NewSectionReader(data, 10, 2), binary.BigEndian, &header.tracks)
-	binary.Read(io.NewSectionReader(data, 12, 2), binary.BigEndian, &timeDivision)
-	header.TimeDivision().Set(timeDivision)
+	start += 4
+	logger.parsedBytes += 4
+	logger.Println("parsing MThd completed")
 
-	// MIDI header is always 14 bytes.
-	logger.parsedBytes += 14
-	logger.Println("parsing header completed")
+	start += 4 // skip read header size
+	logger.parsedBytes += 4
+	logger.Println("skip parsing size of header chunk")
+
+	logger.Println("start parsing format type")
+
+	formatType := uint16(stream[start+1])
+
+	start += 2
+	logger.parsedBytes += 2
+	logger.Printf("parsing format type completed (formatType=%v)", formatType)
+
+	logger.Println("start parsing number of tracks")
+
+	numberOfTracks := uint16(stream[start])
+	numberOfTracks = numberOfTracks << 8
+	numberOfTracks += uint16(stream[start+1])
+
+	start += 2
+	logger.parsedBytes += 2
+	logger.Printf("parsing number of tracks completed (%v)", numberOfTracks)
+
+	logger.Println("start parsing time division")
+
+	timeDivision := uint16(stream[start])
+	timeDivision = timeDivision << 8
+	timeDivision += uint16(stream[start+1])
+
+	start += 2
+	logger.parsedBytes += 2
+	logger.Printf("parsing time division completed (%v)", timeDivision)
+
+	header := &Header{
+		formatType: formatType,
+		tracks:     numberOfTracks,
+	}
+	header.TimeDivision().Set(timeDivision)
 
 	return header, nil
 }

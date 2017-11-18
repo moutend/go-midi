@@ -1,8 +1,6 @@
 package midi
 
 import (
-	"bytes"
-	"encoding/binary"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -17,22 +15,17 @@ func TestHeader_Serialize(t *testing.T) {
 		tracks:       18,
 		timeDivision: td,
 	}
-	data := h.Serialize()
-	// Header Length of the header is always 14 bytes.
-	if len(data) != 14 {
-		t.Fatalf("expected: 14 actual: %v", len(data))
+
+	expected := []byte{0x4d, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06, 0x00, 0x01, 0x00, 0x12, 0x01, 0xe0}
+	actual := h.Serialize()
+
+	if len(actual) != 14 {
+		t.Fatalf("expected: 14 actual: %v", len(actual))
 	}
-
-	buf := bytes.NewBuffer([]byte{})
-	binary.Write(buf, binary.BigEndian, []byte("MThd"))
-	binary.Write(buf, binary.BigEndian, uint32(6))
-	binary.Write(buf, binary.BigEndian, uint16(1))
-	binary.Write(buf, binary.BigEndian, uint16(18))
-	binary.Write(buf, binary.BigEndian, uint16(480))
-
-	for i, b := range buf.Bytes() {
-		if data[i] != b {
-			t.Fatalf("expected: data[%v] = %v actual: data[%v] = %v", i, b, i, data[i])
+	for i, e := range expected {
+		a := actual[i]
+		if e != a {
+			t.Fatalf("expected[%v] = %v actual[%v] = %v", i, e, i, a)
 		}
 	}
 }
