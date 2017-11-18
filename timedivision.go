@@ -32,3 +32,12 @@ func (t *TimeDivision) SetBPM(bpm int) error {
 
 	return nil
 }
+
+// Serialize serializes time division.
+func (t *TimeDivision) Serialize() []byte {
+	bs := make([]byte, 2)
+	bs[0] = byte(t.value >> 8)
+	bs[1] = byte(t.value & 0xff)
+
+	return bs
+}
