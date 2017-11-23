@@ -23,31 +23,12 @@ func parseDeltaTime(stream []byte) (*DeltaTime, error) {
 	return deltaTime, nil
 }
 
-/*
-func parseDeltaTime(stream []byte) (*DeltaTime, error) {
-	if len(stream) == 0 {
-		return nil, fmt.Errorf("midi.parseDeltaTime: stream is empty")
+func NewDeltaTime(value uint32) (*DeltaTime, error) {
+	d := &DeltaTime{}
+	err := d.Quantity().SetUint32(value)
+	if err != nil {
+		return nil, err
 	}
 
-	var i int
-	dt := &DeltaTime{}
-
-	for {
-		if i > 3 {
-			return nil, fmt.Errorf("midi.parseDeltaTime: maximum size of delta time is 4 bytes")
-		}
-		if len(stream) < (i + 1) {
-			return nil, fmt.Errorf("midi.parseDeltaTime: missing next byte (stream=%+v)", stream)
-		}
-		if stream[i] < 0x80 {
-			break
-		}
-		i++
-	}
-
-	dt.value = make([]byte, i+1)
-	copy(dt.value, stream)
-
-	return dt, nil
+	return d, nil
 }
-*/
