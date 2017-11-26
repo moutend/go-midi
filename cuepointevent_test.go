@@ -58,10 +58,18 @@ func TestCuePointEvent_SetText(t *testing.T) {
 }
 
 func TestCuePointEvent_Text(t *testing.T) {
-	event := &CuePointEvent{text: []byte("text")}
+	event := &CuePointEvent{}
 
-	expected := "text"
+	expected := ""
 	actual := string(event.Text())
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+
+	event = &CuePointEvent{text: []byte("text")}
+
+	expected = "text"
+	actual = string(event.Text())
 
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -69,6 +77,11 @@ func TestCuePointEvent_Text(t *testing.T) {
 }
 
 func TestNewCuePointEvent(t *testing.T) {
+	_, err := NewCuePointEvent(nil, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewCuePointEvent(nil, []byte("text"))
 	if err != nil {
 		t.Fatal(err)
