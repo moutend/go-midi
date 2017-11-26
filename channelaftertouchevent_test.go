@@ -92,14 +92,24 @@ func TestChannelAfterTouchEvent_Velocity(t *testing.T) {
 }
 
 func TestNewChannelAfterTouchEvent(t *testing.T) {
-	event, err := NewChannelAfterTouchEvent(nil, 1, 123)
+	_, err := NewChannelAfterTouchEvent(nil, 255, 127)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewChannelAfterTouchEvent(nil, 15, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewChannelAfterTouchEvent(nil, 15, 127)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.channel != 1 {
-		t.Fatalf("expected: 1 actual: %v", event.channel)
+	if event.channel != 15 {
+		t.Fatalf("expected: 15 actual: %v", event.channel)
 	}
-	if event.velocity != 123 {
-		t.Fatalf("expected: 123 actual: %v", event.velocity)
+	if event.velocity != 127 {
+		t.Fatalf("expected: 127 actual: %v", event.velocity)
 	}
 }
