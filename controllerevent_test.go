@@ -116,14 +116,29 @@ func TestControllerEvent_Value(t *testing.T) {
 }
 
 func TestNewControllerEvent(t *testing.T) {
-	event, err := NewControllerEvent(nil, 1, 123, 123)
+	_, err := NewControllerEvent(nil, 255, 127, 127)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewControllerEvent(nil, 15, 255, 127)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewControllerEvent(nil, 15, 127, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewControllerEvent(nil, 15, 127, 127)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.channel != 1 {
-		t.Fatalf("expected: 1 actual: %v", event.channel)
+	if event.channel != 15 {
+		t.Fatalf("expected: 15 actual: %v", event.channel)
 	}
-	if event.control != 123 {
-		t.Fatalf("expected: 123 actual: %v", event.control)
+	if event.control != 127 {
+		t.Fatalf("expected: 127 actual: %v", event.control)
 	}
 }
