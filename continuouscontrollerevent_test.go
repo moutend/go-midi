@@ -92,11 +92,21 @@ func TestContinuousControllerEvent_Value(t *testing.T) {
 }
 
 func TestNewContinuousControllerEvent(t *testing.T) {
-	event, err := NewContinuousControllerEvent(nil, 123, 123)
+	_, err := NewContinuousControllerEvent(nil, 127, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewContinuousControllerEvent(nil, 255, 127)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewContinuousControllerEvent(nil, 127, 127)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.control != 123 {
-		t.Fatalf("expected: 123 actual: %v", event.control)
+	if event.control != 127 {
+		t.Fatalf("expected: 127 actual: %v", event.control)
 	}
 }
