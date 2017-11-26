@@ -58,10 +58,19 @@ func TestCopyrightNoticeEvent_SetText(t *testing.T) {
 }
 
 func TestCopyrightNoticeEvent_Text(t *testing.T) {
-	event := &CopyrightNoticeEvent{text: []byte("text")}
+	event := &CopyrightNoticeEvent{}
 
-	expected := "text"
+	expected := ""
 	actual := string(event.Text())
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+
+	event = &CopyrightNoticeEvent{text: []byte("text")}
+
+	expected = "text"
+	actual = string(event.Text())
 
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -69,6 +78,11 @@ func TestCopyrightNoticeEvent_Text(t *testing.T) {
 }
 
 func TestNewCopyrightNoticeEvent(t *testing.T) {
+	_, err := NewCopyrightNoticeEvent(nil, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewCopyrightNoticeEvent(nil, []byte("text"))
 	if err != nil {
 		t.Fatal(err)
