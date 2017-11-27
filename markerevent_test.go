@@ -58,10 +58,18 @@ func TestMarkerEvent_SetText(t *testing.T) {
 }
 
 func TestMarkerEvent_Text(t *testing.T) {
-	event := &MarkerEvent{text: []byte("text")}
+	event := &MarkerEvent{}
 
-	expected := "text"
+	expected := ""
 	actual := string(event.Text())
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+
+	event = &MarkerEvent{text: []byte("text")}
+
+	expected = "text"
+	actual = string(event.Text())
 
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -69,6 +77,11 @@ func TestMarkerEvent_Text(t *testing.T) {
 }
 
 func TestNewMarkerEvent(t *testing.T) {
+	_, err := NewMarkerEvent(nil, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewMarkerEvent(nil, []byte("text"))
 	if err != nil {
 		t.Fatal(err)
