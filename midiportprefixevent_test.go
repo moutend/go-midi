@@ -67,11 +67,16 @@ func TestMIDIPortPrefixEvent_Port(t *testing.T) {
 }
 
 func TestNewMIDIPortPrefixEvent(t *testing.T) {
-	event, err := NewMIDIPortPrefixEvent(nil, 1)
+	_, err := NewMIDIPortPrefixEvent(nil, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewMIDIPortPrefixEvent(nil, 15)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.port != 1 {
-		t.Fatalf("expected: 1 actual: %v", event.port)
+	if event.port != 15 {
+		t.Fatalf("expected: 15 actual: %v", event.port)
 	}
 }
