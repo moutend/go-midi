@@ -116,18 +116,33 @@ func TestNoteOnEvent_Velocity(t *testing.T) {
 }
 
 func TestNewNoteOnEvent(t *testing.T) {
-	event, err := NewNoteOnEvent(nil, 1, C3, 123)
+	_, err := NewNoteOnEvent(nil, 255, 127, 127)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewNoteOnEvent(nil, 15, 255, 127)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewNoteOnEvent(nil, 15, 127, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewNoteOnEvent(nil, 15, 127, 127)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.channel != 1 {
-		t.Fatalf("expected: 1 actual: %v", event.channel)
+	if event.channel != 15 {
+		t.Fatalf("expected: 15 actual: %v", event.channel)
 	}
-	if event.note != C3 {
-		t.Fatalf("expected: C3 actual: %v", event.note)
+	if event.note != 127 {
+		t.Fatalf("expected: 127 actual: %v", event.note)
 	}
-	if event.velocity != 123 {
-		t.Fatalf("expected: 123 actual: %v", event.velocity)
+	if event.velocity != 127 {
+		t.Fatalf("expected: 127 actual: %v", event.velocity)
 	}
 
 }
