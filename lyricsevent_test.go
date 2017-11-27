@@ -57,10 +57,18 @@ func TestLyricsEvent_SetText(t *testing.T) {
 }
 
 func TestLyricsEvent_Text(t *testing.T) {
-	event := &LyricsEvent{text: []byte("text")}
+	event := &LyricsEvent{}
 
-	expected := "text"
+	expected := ""
 	actual := string(event.Text())
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+
+	event = &LyricsEvent{text: []byte("text")}
+
+	expected = "text"
+	actual = string(event.Text())
 
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -68,6 +76,11 @@ func TestLyricsEvent_Text(t *testing.T) {
 }
 
 func TestNewLyricsEvent(t *testing.T) {
+	_, err := NewLyricsEvent(nil, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewLyricsEvent(nil, []byte("text"))
 	if err != nil {
 		t.Fatal(err)
