@@ -67,11 +67,16 @@ func TestMIDIChannelPrefixEvent_Channel(t *testing.T) {
 }
 
 func TestNewMIDIChannelPrefixEvent(t *testing.T) {
-	event, err := NewMIDIChannelPrefixEvent(nil, 1)
+	_, err := NewMIDIChannelPrefixEvent(nil, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewMIDIChannelPrefixEvent(nil, 15)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.channel != 1 {
-		t.Fatalf("expected: 1 actual: %v", event.channel)
+	if event.channel != 15 {
+		t.Fatalf("expected: 15 actual: %v", event.channel)
 	}
 }
