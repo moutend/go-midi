@@ -92,14 +92,23 @@ func TestPitchBendEvent_Pitch(t *testing.T) {
 }
 
 func TestNewPitchBendEvent(t *testing.T) {
-	event, err := NewPitchBendEvent(nil, 1, 1234)
+	_, err := NewPitchBendEvent(nil, 255, 0x3fff)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+	_, err = NewPitchBendEvent(nil, 15, 0x4000)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err := NewPitchBendEvent(nil, 15, 0x3fff)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if event.channel != 1 {
-		t.Fatalf("expected: 1 actual: %v", event.channel)
+	if event.channel != 15 {
+		t.Fatalf("expected: 15 actual: %v", event.channel)
 	}
-	if event.pitch != 1234 {
-		t.Fatalf("expected: 1234 actual: %v", event.pitch)
+	if event.pitch != 0x3fff {
+		t.Fatalf("expected: 0x3fff actual: 0x%x", event.pitch)
 	}
 }
