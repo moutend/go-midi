@@ -43,6 +43,29 @@ func TestAlienEvent_Serialize(t *testing.T) {
 	}
 }
 
+func TestAlienEvent_SetMetaEventType(t *testing.T) {
+	event := &AlienEvent{}
+	event.SetMetaEventType(0x12)
+
+	expected := uint8(0x12)
+	actual := event.metaEventType
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
+func TestAlienEvent_MetaEventType(t *testing.T) {
+	event := &AlienEvent{metaEventType: 0x12}
+
+	expected := uint8(0x12)
+	actual := event.MetaEventType()
+
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+}
+
 func TestAlienEvent_SetData(t *testing.T) {
 	event := &AlienEvent{}
 	err := event.SetData(bigdata)
@@ -57,10 +80,19 @@ func TestAlienEvent_SetData(t *testing.T) {
 }
 
 func TestAlienEvent_Data(t *testing.T) {
-	event := &AlienEvent{data: []byte{0x12, 0x34, 0x56}}
+	event := &AlienEvent{}
 
-	expected := []byte{0x12, 0x34, 0x56}
+	expected := []byte{}
 	actual := event.Data()
+
+	if len(expected) != len(actual) {
+		t.Fatalf("expected: %v actual: %v", len(expected), len(actual))
+	}
+
+	event = &AlienEvent{data: []byte{0x12, 0x34, 0x56}}
+
+	expected = []byte{0x12, 0x34, 0x56}
+	actual = event.Data()
 
 	if len(expected) != len(actual) {
 		t.Fatalf("expected: %v bytes actual: %v bytes", len(expected), len(actual))
@@ -74,7 +106,12 @@ func TestAlienEvent_Data(t *testing.T) {
 }
 
 func TestNewAlienEvent(t *testing.T) {
-	event, err := NewAlienEvent(nil, 0xaa, []byte{0x12, 0x34, 0x56})
+	event, err := NewAlienEvent(nil, 0x12, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	event, err = NewAlienEvent(nil, 0x12, []byte{0x12, 0x34, 0x56})
 	if err != nil {
 		t.Fatal(err)
 	}

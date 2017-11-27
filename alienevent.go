@@ -68,16 +68,11 @@ func (e *AlienEvent) Data() []byte {
 
 // NewAlienEvent returns AlienEvent with the given parameter.
 func NewAlienEvent(deltaTime *DeltaTime, metaEventType uint8, data []byte) (*AlienEvent, error) {
-	var err error
-
 	event := &AlienEvent{}
 	event.deltaTime = deltaTime
+	event.metaEventType = metaEventType
 
-	err = event.SetMetaEventType(metaEventType)
-	if err != nil {
-		return nil, err
-	}
-	err = event.SetData(data)
+	err := event.SetData(data)
 	if err != nil {
 		return nil, err
 	}
