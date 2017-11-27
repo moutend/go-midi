@@ -104,6 +104,16 @@ func TestKeySignatureEvent_Scale(t *testing.T) {
 }
 
 func TestNewKeySignatureEvent(t *testing.T) {
+	_, err := NewKeySignatureEvent(nil, -8, 1)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
+	_, err = NewKeySignatureEvent(nil, -7, 255)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewKeySignatureEvent(nil, -7, 1)
 	if err != nil {
 		t.Fatal(err)
