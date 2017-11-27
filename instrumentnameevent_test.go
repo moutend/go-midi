@@ -58,10 +58,18 @@ func TestInstrumentNameEvent_SetText(t *testing.T) {
 }
 
 func TestInstrumentNameEvent_Text(t *testing.T) {
-	event := &InstrumentNameEvent{text: []byte("text")}
+	event := &InstrumentNameEvent{}
 
-	expected := "text"
+	expected := ""
 	actual := string(event.Text())
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+
+	event = &InstrumentNameEvent{text: []byte("text")}
+
+	expected = "text"
+	actual = string(event.Text())
 
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -69,6 +77,11 @@ func TestInstrumentNameEvent_Text(t *testing.T) {
 }
 
 func TestNewInstrumentNameEvent(t *testing.T) {
+	_, err := NewInstrumentNameEvent(nil, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewInstrumentNameEvent(nil, []byte("text"))
 	if err != nil {
 		t.Fatal(err)
