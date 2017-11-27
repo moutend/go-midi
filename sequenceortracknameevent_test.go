@@ -58,10 +58,18 @@ func TestSequenceOrTrackNameEvent_SetText(t *testing.T) {
 }
 
 func TestSequenceOrTrackNameEvent_Text(t *testing.T) {
-	event := &SequenceOrTrackNameEvent{text: []byte("text")}
+	event := &SequenceOrTrackNameEvent{}
 
-	expected := "text"
+	expected := ""
 	actual := string(event.Text())
+	if expected != actual {
+		t.Fatalf("expected: %v actual: %v", expected, actual)
+	}
+
+	event = &SequenceOrTrackNameEvent{text: []byte("text")}
+
+	expected = "text"
+	actual = string(event.Text())
 
 	if expected != actual {
 		t.Fatalf("expected: %v actual: %v", expected, actual)
@@ -69,6 +77,11 @@ func TestSequenceOrTrackNameEvent_Text(t *testing.T) {
 }
 
 func TestNewSequenceOrTrackNameEvent(t *testing.T) {
+	_, err := NewSequenceOrTrackNameEvent(nil, bigdata)
+	if err == nil {
+		t.Fatalf("err must not be nil")
+	}
+
 	event, err := NewSequenceOrTrackNameEvent(nil, []byte("text"))
 	if err != nil {
 		t.Fatal(err)
