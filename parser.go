@@ -33,12 +33,12 @@ func (p *Parser) debugln(v ...interface{}) {
 func (p *Parser) Parse(stream []byte) (*MIDI, error) {
 	p.logger.Printf("start parsing %v bytes\n", len(stream))
 
-	formatType, numberOfTracks, timeDivision, err := p.parseHeader(stream)
+	formatType, numberOfTracks, timeDivision, err := p.parseHeader()
 	if err != nil {
 		return nil, err
 	}
 
-	tracks, err := p.parseTracks(stream[p.position:], int(numberOfTracks))
+	tracks, err := p.parseTracks(numberOfTracks)
 	if err != nil {
 		return nil, err
 	}
@@ -55,40 +55,51 @@ func (p *Parser) Parse(stream []byte) (*MIDI, error) {
 }
 
 // parseHeader parses stream begins with MThd.
-func (p *Parser) parseHeader(stream []byte) (formatType, numberOfTracks, timeDivision uint16, err error) {
+func (p *Parser) parseHeader() (formatType, numberOfTracks, timeDivision uint16, err error) {
 	p.debugf("start parsing MThd")
 
-	if string(stream[:4]) != "MThd" {
-		return formatType, numberOfTracks, timeDivision, fmt.Errorf("midi: invalid chunk ID %v", stream[:4])
+	mthd := string(p.data[p.position:4])
+	if mthd != "MThd" {
+		return formatType, numberOfTracks, timeDivision, fmt.Errorf("midi: invalid chunk ID %v", mthd)
 	}
 
 	p.position += 4
 	p.debugln("parsing MThd completed")
 
-	p.position += 4 // skip read header size
-	p.debugln("skip parsing size of header chunk")
+	p.debugln("start parsing header size")
+
+	headerSize := p.data[p.position+3]
+	if headerSize != 6 {
+		return formatType, numberOfTracks, timeDivision, fmt.Errorf("midi: header size must be always 6 bytes (%v)", headerSize)
+	}
+
+	p.position += 4
+	p.debugln("parsing header size completed")
 
 	p.debugln("start parsing format type")
 
-	formatType = uint16(stream[p.position+1])
+	formatType = uint16(p.data[p.position+1])
+	if formatType > 3 {
+		return formatType, numberOfTracks, timeDivision, fmt.Errorf("midi: format type should be 1, 2 or 3")
+	}
 
 	p.position += 2
 	p.debugf("parsing format type completed (formatType=%v)", formatType)
 
 	p.debugln("start parsing number of tracks")
 
-	numberOfTracks = uint16(stream[p.position])
+	numberOfTracks = uint16(p.data[p.position])
 	numberOfTracks = numberOfTracks << 8
-	numberOfTracks += uint16(stream[p.position+1])
+	numberOfTracks += uint16(p.data[p.position+1])
 
 	p.position += 2
 	p.debugf("parsing number of tracks completed (%v)", numberOfTracks)
 
 	p.debugln("start parsing time division")
 
-	timeDivision = uint16(stream[p.position])
+	timeDivision = uint16(p.data[p.position])
 	timeDivision = timeDivision << 8
-	timeDivision += uint16(stream[p.position+1])
+	timeDivision += uint16(p.data[p.position+1])
 
 	p.position += 2
 	p.debugf("parsing time division completed (timeDivision = %v)", timeDivision)
@@ -97,39 +108,39 @@ func (p *Parser) parseHeader(stream []byte) (formatType, numberOfTracks, timeDiv
 }
 
 // parseTracks parses stream begins with MTrk.
-func (p *Parser) parseTracks(stream []byte, numberOfTracks int) ([]*Track, error) {
-	start := 0
+func (p *Parser) parseTracks(numberOfTracks uint16) ([]*Track, error) {
 	tracks := make([]*Track, numberOfTracks)
 
-	for n := 0; n < numberOfTracks; n++ {
+	for n := 0; n < int(numberOfTracks); n++ {
 		p.debugln("start parsing MTrk")
-		if string(stream[start:start+4]) != "MTrk" {
-			return nil, fmt.Errorf("midi: invalid track ID %v", stream[start:start+4])
+		mtrk := string(p.data[p.position : p.position+4])
+		if mtrk != "MTrk" {
+			return nil, fmt.Errorf("midi: invalid track ID %v", mtrk)
 		}
 
-		start += 4
+		p.position += 4
 		p.debugln("parsing MTrk completed")
 
 		p.debugln("start parsing size of track")
 
-		chunkSize := uint32(stream[start])
+		chunkSize := uint32(p.data[p.position])
 		chunkSize = chunkSize << 8
-		chunkSize += uint32(stream[start+1])
+		chunkSize += uint32(p.data[p.position+1])
 		chunkSize = chunkSize << 8
-		chunkSize += uint32(stream[start+2])
+		chunkSize += uint32(p.data[p.position+2])
 		chunkSize = chunkSize << 8
-		chunkSize += uint32(stream[start+3])
+		chunkSize += uint32(p.data[p.position+3])
 
-		start += 4
+		p.position += 4
 		p.debugf("parsing size of track completed (chunkSize=%v)", chunkSize)
 
-		track, err := p.parseTrack(stream[start:])
+		track, err := p.parseTrack(p.data[p.position:])
 		if err != nil {
 			return nil, err
 		}
 
 		tracks[n] = track
-		start += int(chunkSize)
+		p.position += int(chunkSize)
 	}
 
 	return tracks, nil

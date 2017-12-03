@@ -25,7 +25,7 @@ func TestParser_parseHeader(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		formatType, numberOfTracks, timeDivision, err := NewParser(file).parseHeader(file)
+		formatType, numberOfTracks, timeDivision, err := NewParser(file).parseHeader()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -47,7 +47,7 @@ func TestParser_parseTracks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tracks, err := NewParser(file[14:]).parseTracks(file[14:], 18)
+	tracks, err := NewParser(file[14:]).parseTracks(18)
 	if err != nil {
 		t.Fatal(err)
 	}
