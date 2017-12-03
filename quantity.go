@@ -66,30 +66,3 @@ func (q *Quantity) Value() []byte {
 func (q *Quantity) Serialize() []byte {
 	return q.Value()
 }
-
-func parseQuantity(stream []byte) (*Quantity, error) {
-	if len(stream) == 0 {
-		return nil, fmt.Errorf("midi: stream is empty")
-	}
-
-	var i int
-	q := &Quantity{}
-
-	for {
-		if i > 3 {
-			return nil, fmt.Errorf("midi: maximum size of variable quantity is 4 bytes")
-		}
-		if len(stream) < (i + 1) {
-			return nil, fmt.Errorf("midi: missing next byte")
-		}
-		if stream[i] < 0x80 {
-			break
-		}
-		i++
-	}
-
-	q.value = make([]byte, i+1)
-	copy(q.value, stream)
-
-	return q, nil
-}

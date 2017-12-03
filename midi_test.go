@@ -12,7 +12,7 @@ func TestMIDI_Serialize(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		m, err := Parse(file)
+		m, err := NewParser(nil).Parse(file)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -37,40 +37,5 @@ func TestMIDI_TimeDivision(t *testing.T) {
 	td := m.TimeDivision()
 	if td == nil {
 		t.Fatalf("TimeDivision must not return nil")
-	}
-}
-
-func TestParse(t *testing.T) {
-	for _, pathToMid := range pathsToMid {
-		file, err := ioutil.ReadFile(pathToMid)
-		if err != nil {
-			t.Fatal(err)
-		}
-		_, err = Parse(file)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-}
-
-func TestParseHeader(t *testing.T) {
-	for _, pathToMid := range pathsToMid {
-		file, err := ioutil.ReadFile(pathToMid)
-		if err != nil {
-			t.Fatal(err)
-		}
-		formatType, numberOfTracks, timeDivision, err := parseHeader(file)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if formatType != 1 {
-			t.Fatalf("expected: 1 actual: %v", formatType)
-		}
-		if numberOfTracks != 18 {
-			t.Fatalf("expected: 18 actual: %v", numberOfTracks)
-		}
-		if timeDivision != 480 {
-			t.Fatalf("expected: 480 actual: %v", timeDivision)
-		}
 	}
 }
