@@ -12,7 +12,7 @@ func TestParser_Parse(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		_, err = NewParser(nil).Parse(file)
+		_, err = NewParser(file).Parse(file)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -25,7 +25,7 @@ func TestParser_parseHeader(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		formatType, numberOfTracks, timeDivision, err := NewParser(nil).parseHeader(file)
+		formatType, numberOfTracks, timeDivision, err := NewParser(file).parseHeader(file)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -41,6 +41,21 @@ func TestParser_parseHeader(t *testing.T) {
 	}
 }
 
+func TestParser_parseTracks(t *testing.T) {
+	pathToMid := filepath.Join("testdata", "vegetable_valley.mid")
+	file, err := ioutil.ReadFile(pathToMid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tracks, err := NewParser(file[14:]).parseTracks(file[14:], 18)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tracks) != 18 {
+		t.Fatalf("number of tracks must be 18, but got %v", len(tracks))
+	}
+}
+
 func TestParser_parseTrack(t *testing.T) {
 	textEvent1 := []byte{0x00, 0xff, 0x01, 0x0b, 0x74, 0x65, 0x78, 0x74, 0x20, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x31}
 	textEvent2 := []byte{0x00, 0xff, 0x01, 0x0b, 0x74, 0x65, 0x78, 0x74, 0x20, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x32}
@@ -51,7 +66,7 @@ func TestParser_parseTrack(t *testing.T) {
 	stream = append(stream, textEvent2...)
 	stream = append(stream, endOfTrackEvent...)
 
-	track, err := NewParser(nil).parseTrack(stream)
+	track, err := NewParser(stream).parseTrack(stream)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,23 +98,9 @@ func TestParser_parseTrack(t *testing.T) {
 	}
 }
 
-func TestParser_parseTracks(t *testing.T) {
-	pathToMid := filepath.Join("testdata", "vegetable_valley.mid")
-	file, err := ioutil.ReadFile(pathToMid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	tracks, err := NewParser(nil).parseTracks(file[14:], 18)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(tracks) != 18 {
-		t.Fatalf("number of tracks must be 18, but got %v", len(tracks))
-	}
-}
 func TestParser_parseEvent(t *testing.T) {
 	stream := []byte{0x00, 0xff, 0x02, 0x12, 0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x28, 0x43, 0x29, 0x20, 0x32, 0x30, 0x31, 0x37}
-	event, sizeOfEvent, err := NewParser(nil).parseEvent(stream)
+	event, sizeOfEvent, err := NewParser(stream).parseEvent(stream)
 	if err != nil {
 		t.Fatal(err)
 	}

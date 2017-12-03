@@ -7,9 +7,9 @@ import (
 )
 
 type Parser struct {
-	currentEventType  uint8
-	previousEventType uint8
+	data              []byte
 	position          int
+	previousEventType uint8
 	logger            *log.Logger
 }
 
@@ -175,7 +175,7 @@ func (p *Parser) parseEvent(stream []byte) (event Event, sizeOfEvent int, err er
 	sizeOfDeltaTime := len(deltaTime.Quantity().value)
 	eventType := stream[sizeOfDeltaTime]
 
-	if eventType < 0x80 {
+	if eventType < 0x80 && p.previousEventType >= 0x80 {
 		eventType = p.previousEventType
 	}
 	switch eventType {
@@ -445,19 +445,19 @@ func parseQuantity(stream []byte) (*Quantity, error) {
 	return q, nil
 }
 
-// SetLogger sets logger for debugging.
-func SetLogger(l *log.Logger) {
-	if l != nil {
-		logger.Logger = l
+// SetLogger sets logger.
+func (p *Parser) SetLogger(logger *log.Logger) *Parser {
+	if logger != nil {
+		p.logger = logger
 	}
+
+	return p
 }
 
 // NewParser returns Parser.
-func NewParser(logger *log.Logger) *Parser {
-	if logger == nil {
-		logger = log.New(ioutil.Discard, "discard logging messages", 0)
-	}
+func NewParser(data []byte) *Parser {
 	return &Parser{
-		logger: logger,
+		data:   data,
+		logger: log.New(ioutil.Discard, "discard logging messages", 0),
 	}
 }
