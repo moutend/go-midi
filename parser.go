@@ -113,6 +113,7 @@ func (p *Parser) parseTracks(numberOfTracks uint16) ([]*Track, error) {
 
 	for n := 0; n < int(numberOfTracks); n++ {
 		p.debugln("start parsing MTrk")
+
 		mtrk := string(p.data[p.position : p.position+4])
 		if mtrk != "MTrk" {
 			return nil, fmt.Errorf("midi: invalid track ID %v", mtrk)
@@ -140,7 +141,6 @@ func (p *Parser) parseTracks(numberOfTracks uint16) ([]*Track, error) {
 		}
 
 		tracks[n] = track
-		p.position += int(chunkSize)
 	}
 
 	return tracks, nil
@@ -157,12 +157,12 @@ func (p *Parser) parseTrack() (*Track, error) {
 			break
 		}
 
-		event, sizeOfEvent, err := p.parseEvent()
+		event, err := p.parseEvent()
 		if err != nil {
 			return nil, err
 		}
+
 		track.Events = append(track.Events, event)
-		p.position += sizeOfEvent
 
 		switch event.(type) {
 		case *EndOfTrackEvent:
@@ -174,94 +174,116 @@ func (p *Parser) parseTrack() (*Track, error) {
 }
 
 // parseEvent parses stream begins with delta time.
-func (p *Parser) parseEvent() (event Event, sizeOfEvent int, err error) {
-	p.debugln("start parsing event")
+func (p *Parser) parseEvent() (event Event, err error) {
+	p.debugln("start parsing delta time")
 
-	deltaTime, err := p.parseDeltaTime()
+	deltaTime, err := parseDeltaTime(p.data[p.position:])
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	sizeOfDeltaTime := len(deltaTime.Quantity().value)
-	eventType := p.data[sizeOfDeltaTime]
+	p.position += len(deltaTime.Quantity().Value())
+	p.debugf("parsing delta time completed (%v)", deltaTime.Quantity().Uint32())
+
+	p.debugln("start parsing event type")
+
+	runningStatus := false
+	eventType := p.data[p.position]
+	p.position += 1
 
 	if eventType < 0x80 && p.previousEventType >= 0x80 {
+		p.debugln("running status enabled for this event")
+
+		runningStatus = true
 		eventType = p.previousEventType
+		p.position -= 1
 	}
+
+	p.previousEventType = eventType
+	p.debugf("parsing event type completed (0x%x)", eventType)
+
 	switch eventType {
 	case Meta:
-		return p.parseMetaEvent(deltaTime)
+		return p.parseMetaEvent(deltaTime, eventType, runningStatus)
 	case SystemExclusive, DividedSystemExclusive:
-		return p.parseSystemExclusiveEvent(deltaTime)
+		return p.parseSystemExclusiveEvent(deltaTime, eventType, runningStatus)
 	default:
-		return p.parseMIDIControlEvent(deltaTime, eventType)
+		return p.parseMIDIControlEvent(deltaTime, eventType, runningStatus)
 	}
 }
 
-// parseMetaEvent parses stream begins with 0xff.
-func (p *Parser) parseMetaEvent(deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
-	q, err := p.parseQuantity()
+// parseMetaEvent parses
+func (p *Parser) parseMetaEvent(deltaTime *DeltaTime, eventType uint8, runningStatus bool) (event Event, err error) {
+	p.debugln("start parsing meta event type")
+
+	metaEventType := p.data[p.position]
+
+	p.position += 1
+	p.debugf("parsing meta event type completed (0x%x)", metaEventType)
+
+	p.debugln("start parsing size of meta event")
+
+	q, err := parseQuantity(p.data[p.position:])
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	offset := 2 + len(q.value)
-	sizeOfData := int(q.Uint32())
-	sizeOfEvent = len(deltaTime.Quantity().Value()) + offset + sizeOfData
+	p.position += len(q.value)
+	p.debugf("parsing size of meta event completed (%v)", q.Uint32())
 
-	metaEventType := p.data[1]
-	metaEventData := p.data[offset : offset+sizeOfData]
+	sizeOfData := int(q.Uint32())
+	data := p.data[p.position : p.position+sizeOfData]
 
 	switch metaEventType {
 	case Text:
 		event = &TextEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case CopyrightNotice:
 		event = &CopyrightNoticeEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case SequenceOrTrackName:
 		event = &SequenceOrTrackNameEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case InstrumentName:
 		event = &InstrumentNameEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case Lyrics:
 		event = &LyricsEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case Marker:
 		event = &MarkerEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case CuePoint:
 		event = &CuePointEvent{
 			deltaTime: deltaTime,
-			text:      metaEventData,
+			text:      data,
 		}
 	case MIDIPortPrefix:
 		event = &MIDIPortPrefixEvent{
 			deltaTime: deltaTime,
-			port:      uint8(metaEventData[0]),
+			port:      uint8(data[0]),
 		}
 	case MIDIChannelPrefix:
 		event = &MIDIChannelPrefixEvent{
 			deltaTime: deltaTime,
-			channel:   uint8(metaEventData[0]),
+			channel:   uint8(data[0]),
 		}
 	case SetTempo:
-		tempo := uint32(metaEventData[0])
-		tempo = (tempo << 8) + uint32(metaEventData[1])
-		tempo = (tempo << 8) + uint32(metaEventData[2])
+		tempo := uint32(data[0])
+		tempo = (tempo << 8) + uint32(data[1])
+		tempo = (tempo << 8) + uint32(data[2])
 		event = &SetTempoEvent{
 			deltaTime: deltaTime,
 			tempo:     tempo,
@@ -269,30 +291,30 @@ func (p *Parser) parseMetaEvent(deltaTime *DeltaTime) (event Event, sizeOfEvent 
 	case SMPTEOffset:
 		event = &SMPTEOffsetEvent{
 			deltaTime: deltaTime,
-			hour:      metaEventData[0],
-			minute:    metaEventData[1],
-			second:    metaEventData[2],
-			frame:     metaEventData[3],
-			subFrame:  metaEventData[4],
+			hour:      data[0],
+			minute:    data[1],
+			second:    data[2],
+			frame:     data[3],
+			subFrame:  data[4],
 		}
 	case TimeSignature:
 		event = &TimeSignatureEvent{
 			deltaTime:      deltaTime,
-			numerator:      uint8(metaEventData[0]),
-			denominator:    uint8(metaEventData[1]),
-			metronomePulse: uint8(metaEventData[2]),
-			quarterNote:    uint8(metaEventData[3]),
+			numerator:      uint8(data[0]),
+			denominator:    uint8(data[1]),
+			metronomePulse: uint8(data[2]),
+			quarterNote:    uint8(data[3]),
 		}
 	case KeySignature:
 		event = &KeySignatureEvent{
 			deltaTime: deltaTime,
-			key:       int8(metaEventData[0]),
-			scale:     uint8(metaEventData[1]),
+			key:       int8(data[0]),
+			scale:     uint8(data[1]),
 		}
 	case SequencerSpecific:
 		event = &SequencerSpecificEvent{
 			deltaTime: deltaTime,
-			data:      metaEventData,
+			data:      data,
 		}
 	case EndOfTrack:
 		event = &EndOfTrackEvent{
@@ -302,157 +324,121 @@ func (p *Parser) parseMetaEvent(deltaTime *DeltaTime) (event Event, sizeOfEvent 
 		event = &AlienEvent{
 			deltaTime:     deltaTime,
 			metaEventType: metaEventType,
-			data:          metaEventData,
+			data:          data,
 		}
 	}
 
-	p.previousEventType = Meta
+	p.position += sizeOfData
 	p.debugf("parsing event completed (event = %v)", event)
 
-	return event, sizeOfEvent, nil
+	return event, nil
 }
 
-// parseSystemExclusiveEvent parses stream begins with 0xf0 or 0xf7.
-func (p *Parser) parseSystemExclusiveEvent(deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
-	q, err := p.parseQuantity()
+// parseSystemExclusiveEvent parses
+func (p *Parser) parseSystemExclusiveEvent(deltaTime *DeltaTime, eventType uint8, runningStatus bool) (event Event, err error) {
+	p.debugln("start parsing size of system exclusive event")
+
+	q, err := parseQuantity(p.data[p.position:])
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	offset := 1 + len(q.value)
+	p.position += len(q.value)
+	p.debugf("parsing size of system exclusive event completed (%v)", q.Uint32())
+
 	sizeOfData := int(q.Uint32())
-	sizeOfEvent = len(deltaTime.Quantity().value) + offset + sizeOfData
-	eventType := p.data[0]
+	data := p.data[p.position : p.position+sizeOfData]
 
 	switch eventType {
 	case SystemExclusive:
 		event = &SystemExclusiveEvent{
 			deltaTime: deltaTime,
-			data:      p.data[offset : offset+sizeOfData],
+			data:      data,
 		}
 	case DividedSystemExclusive:
 		event = &DividedSystemExclusiveEvent{
 			deltaTime: deltaTime,
-			data:      p.data[offset : offset+sizeOfData],
+			data:      data,
 		}
 	}
 
-	p.previousEventType = eventType
+	p.position += sizeOfData
 	p.debugf("parsing event completed (event = %v)", event)
 
-	return event, sizeOfEvent, nil
+	return event, nil
 }
 
-// parseMIDIControlEvent parses stream begins with 0x8_...0xe_.
-func (p *Parser) parseMIDIControlEvent(deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
-	parameter := p.data[1:3]
+// parseMIDIControlEvent parses
+func (p *Parser) parseMIDIControlEvent(deltaTime *DeltaTime, eventType uint8, runningStatus bool) (event Event, err error) {
+	p.debugln("start parsing MIDI control event")
+
 	channel := uint8(eventType) & 0x0f
-	sizeOfMIDIControlEvent := 3
+	sizeOfData := 2
+	data := p.data[p.position : p.position+sizeOfData]
 
 	switch eventType & 0xf0 {
 	case NoteOff:
 		event = &NoteOffEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      Note(parameter[0]),
-			velocity:  parameter[1],
+			note:      Note(data[0]),
+			velocity:  data[1],
 		}
 	case NoteOn:
 		event = &NoteOnEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      Note(parameter[0]),
-			velocity:  parameter[1],
+			note:      Note(data[0]),
+			velocity:  data[1],
 		}
 	case NoteAfterTouch:
 		event = &NoteAfterTouchEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			note:      Note(parameter[0]),
-			velocity:  uint8(parameter[1]),
+			note:      Note(data[0]),
+			velocity:  data[1],
 		}
 	case Controller:
 		event = &ControllerEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			control:   Control(parameter[0]),
-			value:     uint8(parameter[1]),
+			control:   Control(data[0]),
+			value:     data[1],
 		}
 	case ProgramChange:
-		sizeOfMIDIControlEvent = 2
+		sizeOfData = 1
 		event = &ProgramChangeEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			program:   GM(parameter[0]),
+			program:   GM(data[0]),
 		}
 	case ChannelAfterTouch:
-		sizeOfMIDIControlEvent = 2
+		sizeOfData = 1
 		event = &ChannelAfterTouchEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
-			velocity:  uint8(parameter[0]),
+			velocity:  data[0],
 		}
 	case PitchBend:
-		pitch := uint16(parameter[0]&0x7f) << 7
-		pitch += uint16(parameter[1] & 0x7f)
+		pitch := uint16(data[0]&0x7f) << 7
+		pitch += uint16(data[1] & 0x7f)
 		event = &PitchBendEvent{
 			deltaTime: deltaTime,
 			channel:   channel,
 			pitch:     pitch,
 		}
 	default:
-		sizeOfMIDIControlEvent = 2
+		return nil, fmt.Errorf("undefined")
+		//sizeOfMIDIControlEvent = 2
 		event = &ContinuousControllerEvent{
 			deltaTime: deltaTime,
-			control:   uint8(p.data[0]),
-			value:     uint8(p.data[1]),
 		}
 	}
 
-	sizeOfEvent = len(deltaTime.Quantity().Value()) + sizeOfMIDIControlEvent
-
-	p.previousEventType = eventType
+	p.position += sizeOfData
 	p.debugf("parsing event completed (event = %v)", event)
 
-	return event, sizeOfEvent, nil
-}
-
-func (p *Parser) parseDeltaTime() (*DeltaTime, error) {
-	q, err := p.parseQuantity()
-	if err != nil {
-		return nil, err
-	}
-
-	deltaTime := &DeltaTime{q}
-
-	return deltaTime, nil
-}
-
-func (p *Parser) parseQuantity() (*Quantity, error) {
-	if len(p.data) == 0 {
-		return nil, fmt.Errorf("midi: stream is empty")
-	}
-
-	var i int
-	q := &Quantity{}
-
-	for {
-		if i > 3 {
-			return nil, fmt.Errorf("midi: maximum size of variable quantity is 4 bytes")
-		}
-		if len(p.data) < (i + 1) {
-			return nil, fmt.Errorf("midi: missing next byte")
-		}
-		if p.data[i] < 0x80 {
-			break
-		}
-		i++
-	}
-
-	q.value = make([]byte, i+1)
-	copy(q.value, p.data)
-
-	return q, nil
+	return event, nil
 }
 
 // SetLogger sets logger.
