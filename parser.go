@@ -134,7 +134,7 @@ func (p *Parser) parseTracks(numberOfTracks uint16) ([]*Track, error) {
 		p.position += 4
 		p.debugf("parsing size of track completed (chunkSize=%v)", chunkSize)
 
-		track, err := p.parseTrack(p.data[p.position:])
+		track, err := p.parseTrack()
 		if err != nil {
 			return nil, err
 		}
@@ -147,23 +147,22 @@ func (p *Parser) parseTracks(numberOfTracks uint16) ([]*Track, error) {
 }
 
 // parseTrack parses stream begins with delta time and ends with end of track event.
-func (p *Parser) parseTrack(stream []byte) (*Track, error) {
-	start := 0
-	sizeOfStream := len(stream)
+func (p *Parser) parseTrack() (*Track, error) {
+	sizeOfStream := len(p.data)
 	track := &Track{
 		Events: []Event{},
 	}
 	for {
-		if start >= sizeOfStream {
+		if p.position >= sizeOfStream {
 			break
 		}
 
-		event, sizeOfEvent, err := p.parseEvent(stream[start:])
+		event, sizeOfEvent, err := p.parseEvent()
 		if err != nil {
 			return nil, err
 		}
 		track.Events = append(track.Events, event)
-		start += sizeOfEvent
+		p.position += sizeOfEvent
 
 		switch event.(type) {
 		case *EndOfTrackEvent:
@@ -175,33 +174,33 @@ func (p *Parser) parseTrack(stream []byte) (*Track, error) {
 }
 
 // parseEvent parses stream begins with delta time.
-func (p *Parser) parseEvent(stream []byte) (event Event, sizeOfEvent int, err error) {
+func (p *Parser) parseEvent() (event Event, sizeOfEvent int, err error) {
 	p.debugln("start parsing event")
 
-	deltaTime, err := parseDeltaTime(stream)
+	deltaTime, err := p.parseDeltaTime()
 	if err != nil {
 		return nil, 0, err
 	}
 
 	sizeOfDeltaTime := len(deltaTime.Quantity().value)
-	eventType := stream[sizeOfDeltaTime]
+	eventType := p.data[sizeOfDeltaTime]
 
 	if eventType < 0x80 && p.previousEventType >= 0x80 {
 		eventType = p.previousEventType
 	}
 	switch eventType {
 	case Meta:
-		return p.parseMetaEvent(stream[sizeOfDeltaTime:], deltaTime)
+		return p.parseMetaEvent(deltaTime)
 	case SystemExclusive, DividedSystemExclusive:
-		return p.parseSystemExclusiveEvent(stream[sizeOfDeltaTime:], deltaTime)
+		return p.parseSystemExclusiveEvent(deltaTime)
 	default:
-		return p.parseMIDIControlEvent(stream[sizeOfDeltaTime:], deltaTime, eventType)
+		return p.parseMIDIControlEvent(deltaTime, eventType)
 	}
 }
 
 // parseMetaEvent parses stream begins with 0xff.
-func (p *Parser) parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
-	q, err := parseQuantity(stream[2:])
+func (p *Parser) parseMetaEvent(deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
+	q, err := p.parseQuantity()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -210,8 +209,8 @@ func (p *Parser) parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Even
 	sizeOfData := int(q.Uint32())
 	sizeOfEvent = len(deltaTime.Quantity().Value()) + offset + sizeOfData
 
-	metaEventType := stream[1]
-	metaEventData := stream[offset : offset+sizeOfData]
+	metaEventType := p.data[1]
+	metaEventData := p.data[offset : offset+sizeOfData]
 
 	switch metaEventType {
 	case Text:
@@ -314,8 +313,8 @@ func (p *Parser) parseMetaEvent(stream []byte, deltaTime *DeltaTime) (event Even
 }
 
 // parseSystemExclusiveEvent parses stream begins with 0xf0 or 0xf7.
-func (p *Parser) parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
-	q, err := parseQuantity(stream[1:])
+func (p *Parser) parseSystemExclusiveEvent(deltaTime *DeltaTime) (event Event, sizeOfEvent int, err error) {
+	q, err := p.parseQuantity()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -323,18 +322,18 @@ func (p *Parser) parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) 
 	offset := 1 + len(q.value)
 	sizeOfData := int(q.Uint32())
 	sizeOfEvent = len(deltaTime.Quantity().value) + offset + sizeOfData
-	eventType := stream[0]
+	eventType := p.data[0]
 
 	switch eventType {
 	case SystemExclusive:
 		event = &SystemExclusiveEvent{
 			deltaTime: deltaTime,
-			data:      stream[offset : offset+sizeOfData],
+			data:      p.data[offset : offset+sizeOfData],
 		}
 	case DividedSystemExclusive:
 		event = &DividedSystemExclusiveEvent{
 			deltaTime: deltaTime,
-			data:      stream[offset : offset+sizeOfData],
+			data:      p.data[offset : offset+sizeOfData],
 		}
 	}
 
@@ -345,8 +344,8 @@ func (p *Parser) parseSystemExclusiveEvent(stream []byte, deltaTime *DeltaTime) 
 }
 
 // parseMIDIControlEvent parses stream begins with 0x8_...0xe_.
-func (p *Parser) parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
-	parameter := stream[1:3]
+func (p *Parser) parseMIDIControlEvent(deltaTime *DeltaTime, eventType byte) (event Event, sizeOfEvent int, err error) {
+	parameter := p.data[1:3]
 	channel := uint8(eventType) & 0x0f
 	sizeOfMIDIControlEvent := 3
 
@@ -405,8 +404,8 @@ func (p *Parser) parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, even
 		sizeOfMIDIControlEvent = 2
 		event = &ContinuousControllerEvent{
 			deltaTime: deltaTime,
-			control:   uint8(stream[0]),
-			value:     uint8(stream[1]),
+			control:   uint8(p.data[0]),
+			value:     uint8(p.data[1]),
 		}
 	}
 
@@ -418,8 +417,8 @@ func (p *Parser) parseMIDIControlEvent(stream []byte, deltaTime *DeltaTime, even
 	return event, sizeOfEvent, nil
 }
 
-func parseDeltaTime(stream []byte) (*DeltaTime, error) {
-	q, err := parseQuantity(stream)
+func (p *Parser) parseDeltaTime() (*DeltaTime, error) {
+	q, err := p.parseQuantity()
 	if err != nil {
 		return nil, err
 	}
@@ -429,8 +428,8 @@ func parseDeltaTime(stream []byte) (*DeltaTime, error) {
 	return deltaTime, nil
 }
 
-func parseQuantity(stream []byte) (*Quantity, error) {
-	if len(stream) == 0 {
+func (p *Parser) parseQuantity() (*Quantity, error) {
+	if len(p.data) == 0 {
 		return nil, fmt.Errorf("midi: stream is empty")
 	}
 
@@ -441,17 +440,17 @@ func parseQuantity(stream []byte) (*Quantity, error) {
 		if i > 3 {
 			return nil, fmt.Errorf("midi: maximum size of variable quantity is 4 bytes")
 		}
-		if len(stream) < (i + 1) {
+		if len(p.data) < (i + 1) {
 			return nil, fmt.Errorf("midi: missing next byte")
 		}
-		if stream[i] < 0x80 {
+		if p.data[i] < 0x80 {
 			break
 		}
 		i++
 	}
 
 	q.value = make([]byte, i+1)
-	copy(q.value, stream)
+	copy(q.value, p.data)
 
 	return q, nil
 }

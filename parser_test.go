@@ -66,7 +66,7 @@ func TestParser_parseTrack(t *testing.T) {
 	stream = append(stream, textEvent2...)
 	stream = append(stream, endOfTrackEvent...)
 
-	track, err := NewParser(stream).parseTrack(stream)
+	track, err := NewParser(stream).parseTrack()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestParser_parseTrack(t *testing.T) {
 
 func TestParser_parseEvent(t *testing.T) {
 	stream := []byte{0x00, 0xff, 0x02, 0x12, 0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x28, 0x43, 0x29, 0x20, 0x32, 0x30, 0x31, 0x37}
-	event, sizeOfEvent, err := NewParser(stream).parseEvent(stream)
+	event, sizeOfEvent, err := NewParser(stream).parseEvent()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,6 +126,162 @@ func TestParser_parseEvent(t *testing.T) {
 	for i, v := range expectedText {
 		if v != actualText[i] {
 			t.Fatalf("expected: text[%v] = %v actual: text[%v] = %v", i, v, i, actualText[i])
+		}
+	}
+}
+
+func TestParser_parseDeltaTime(t *testing.T) {
+	invalidStreams := [][]byte{
+		[]byte{},
+		[]byte{0x80},
+		[]byte{0x80, 0x80},
+		[]byte{0x80, 0x80, 0x80},
+		[]byte{0x80, 0x80, 0x80, 0x80},
+		[]byte{0x80, 0x80, 0x80, 0x80, 0x80},
+	}
+	for _, stream := range invalidStreams {
+		if _, err := NewParser(stream).parseDeltaTime(); err == nil {
+			t.Fatalf("err should not be nil (stream=%+v)", stream)
+		}
+	}
+
+	validStreams := []struct {
+		value    []byte
+		expected []byte
+	}{
+		{
+			value:    []byte{0x00},
+			expected: []byte{0x00},
+		},
+		{
+			value:    []byte{0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x00},
+		},
+		{
+			value:    []byte{0x7f},
+			expected: []byte{0x7f},
+		},
+		{
+			value:    []byte{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x7f},
+			expected: []byte{0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x7f},
+			expected: []byte{0x80, 0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x80, 0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x80, 0x7f},
+			expected: []byte{0x80, 0x80, 0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x80, 0x7f, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x80, 0x80, 0x80, 0x7f},
+		},
+	}
+	for _, stream := range validStreams {
+		deltaTime, err := NewParser(stream.value).parseDeltaTime()
+		if err != nil {
+			t.Fatal(err)
+		}
+		expected := stream.expected
+		actual := deltaTime.Quantity().Value()
+		if len(expected) != len(actual) {
+			t.Fatalf("expected:%+v actual: %+v", expected, actual)
+		}
+		for i, a := range actual {
+			if a != expected[i] {
+				t.Fatalf("expected: stream[%v] = %v actual: stream[%v] = %v", i, expected[i], i, a)
+			}
+		}
+	}
+}
+
+func TestParser_parseQuantity(t *testing.T) {
+	invalidStreams := [][]byte{
+		[]byte{},
+		[]byte{0x80},
+		[]byte{0x80, 0x80},
+		[]byte{0x80, 0x80, 0x80},
+		[]byte{0x80, 0x80, 0x80, 0x80},
+		[]byte{0x80, 0x80, 0x80, 0x80, 0x80},
+	}
+	for _, stream := range invalidStreams {
+		if _, err := NewParser(stream).parseQuantity(); err == nil {
+			t.Fatalf("err should not be nil (stream=%+v)", stream)
+		}
+	}
+
+	validStreams := []struct {
+		value    []byte
+		expected []byte
+	}{
+		{
+			value:    []byte{0x00},
+			expected: []byte{0x00},
+		},
+		{
+			value:    []byte{0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x00},
+		},
+		{
+			value:    []byte{0x7f},
+			expected: []byte{0x7f},
+		},
+		{
+			value:    []byte{0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x7f},
+			expected: []byte{0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x7f},
+			expected: []byte{0x80, 0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x80, 0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x80, 0x7f},
+			expected: []byte{0x80, 0x80, 0x80, 0x7f},
+		},
+		{
+			value:    []byte{0x80, 0x80, 0x80, 0x7f, 0xff, 0xff, 0xff, 0xff},
+			expected: []byte{0x80, 0x80, 0x80, 0x7f},
+		},
+	}
+	for _, stream := range validStreams {
+		q, err := NewParser(stream.value).parseQuantity()
+		if err != nil {
+			t.Fatal(err)
+		}
+		expected := stream.expected
+		actual := q.value
+		if len(expected) != len(actual) {
+			t.Fatalf("expected:%+v actual: %+v", expected, actual)
+		}
+		for i, a := range actual {
+			if a != expected[i] {
+				t.Fatalf("expected: stream[%v] = %v actual: stream[%v] = %v", i, expected[i], i, a)
+			}
 		}
 	}
 }
