@@ -4,10 +4,11 @@ import "fmt"
 
 // NoteOnEvent corresponds to note on event.
 type NoteOnEvent struct {
-	deltaTime *DeltaTime
-	channel   uint8
-	note      Note
-	velocity  uint8
+	deltaTime     *DeltaTime
+	runningStatus bool
+	channel       uint8
+	note          Note
+	velocity      uint8
 }
 
 // DeltaTime returns delta time of note on event.
@@ -18,11 +19,6 @@ func (e *NoteOnEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of note on event.
-func (e *NoteOnEvent) String() string {
-	return fmt.Sprintf("&NoteOnEvent{channel: %v, note: %v, velocity: %v}", e.channel, e.note, e.velocity)
-}
-
 // Serialize serializes note on event.
 func (e *NoteOnEvent) Serialize() []byte {
 	bs := []byte{}
@@ -31,6 +27,16 @@ func (e *NoteOnEvent) Serialize() []byte {
 	bs = append(bs, byte(e.note), e.velocity)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *NoteOnEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *NoteOnEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetChannel sets channel.
@@ -76,6 +82,11 @@ func (e *NoteOnEvent) SetVelocity(velocity uint8) error {
 // Velocity returns velocity.
 func (e *NoteOnEvent) Velocity() uint8 {
 	return e.velocity
+}
+
+// String returns string representation of note on event.
+func (e *NoteOnEvent) String() string {
+	return fmt.Sprintf("&NoteOnEvent{channel: %v, note: %v, velocity: %v}", e.channel, e.note, e.velocity)
 }
 
 // NewNoteOnEvent returns NoteOnEvent with the given parameter.

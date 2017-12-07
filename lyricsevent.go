@@ -4,8 +4,9 @@ import "fmt"
 
 // LyricsEvent corresponds to lyrics event.
 type LyricsEvent struct {
-	deltaTime *DeltaTime
-	text      []byte
+	deltaTime     *DeltaTime
+	runningStatus bool
+	text          []byte
 }
 
 // DeltaTime returns delta time of lyrics event.
@@ -14,11 +15,6 @@ func (e *LyricsEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of lyrics event.
-func (e *LyricsEvent) String() string {
-	return fmt.Sprintf("&LyricsEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes lyrics event.
@@ -33,6 +29,16 @@ func (e *LyricsEvent) Serialize() []byte {
 	bs = append(bs, e.Text()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *LyricsEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *LyricsEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetText sets text.
@@ -55,6 +61,11 @@ func (e *LyricsEvent) Text() []byte {
 	copy(text, e.text)
 
 	return text
+}
+
+// String returns string representation of lyrics event.
+func (e *LyricsEvent) String() string {
+	return fmt.Sprintf("&LyricsEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // NewLyricsEvent returns LyricsEvent with the given parameter.

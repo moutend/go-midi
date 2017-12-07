@@ -2,7 +2,6 @@ package midi
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 )
 
@@ -14,24 +13,24 @@ type Parser struct {
 }
 
 func (p *Parser) debugf(format string, v ...interface{}) {
-	format = fmt.Sprintf("midi: [%v] %v", p.position, format)
+	if p.logger == nil {
+		return
+	}
+	p.logger.Print(fmt.Sprintf("midi: [%v] ", p.position))
 	p.logger.Printf(format, v...)
 }
 
 func (p *Parser) debugln(v ...interface{}) {
-	a := make([]interface{}, len(v)+1)
-	a[0] = fmt.Sprintf("midi: [%v]", p.position)
-
-	for i := 0; i < len(v); i++ {
-		a[i+1] = v[i]
+	if p.logger == nil {
+		return
 	}
-
-	p.logger.Println(a...)
+	p.logger.Print(fmt.Sprintf("midi: [%v] ", p.position))
+	p.logger.Println(v...)
 }
 
 // Parse parses standard MIDI (*.mid) data.
 func (p *Parser) Parse(stream []byte) (*MIDI, error) {
-	p.logger.Printf("start parsing %v bytes\n", len(stream))
+	p.debugf("start parsing %v bytes\n", len(stream))
 
 	formatType, numberOfTracks, timeDivision, err := p.parseHeader()
 	if err != nil {
@@ -49,7 +48,7 @@ func (p *Parser) Parse(stream []byte) (*MIDI, error) {
 		Tracks:       tracks,
 	}
 
-	p.logger.Println("successfully done")
+	p.debugln("successfully done")
 
 	return midi, nil
 }
@@ -204,16 +203,21 @@ func (p *Parser) parseEvent() (event Event, err error) {
 
 	switch eventType {
 	case Meta:
-		return p.parseMetaEvent(deltaTime, eventType, runningStatus)
+		event, err = p.parseMetaEvent(eventType)
 	case SystemExclusive, DividedSystemExclusive:
-		return p.parseSystemExclusiveEvent(deltaTime, eventType, runningStatus)
+		event, err = p.parseSystemExclusiveEvent(eventType)
 	default:
-		return p.parseMIDIControlEvent(deltaTime, eventType, runningStatus)
+		event, err = p.parseMIDIControlEvent(eventType)
 	}
+
+	event.DeltaTime().Quantity().SetValue(deltaTime.Quantity().Value())
+	event.SetRunningStatus(runningStatus)
+
+	return event, err
 }
 
 // parseMetaEvent parses
-func (p *Parser) parseMetaEvent(deltaTime *DeltaTime, eventType uint8, runningStatus bool) (event Event, err error) {
+func (p *Parser) parseMetaEvent(eventType uint8) (event Event, err error) {
 	p.debugln("start parsing meta event type")
 
 	metaEventType := p.data[p.position]
@@ -237,69 +241,57 @@ func (p *Parser) parseMetaEvent(deltaTime *DeltaTime, eventType uint8, runningSt
 	switch metaEventType {
 	case Text:
 		event = &TextEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case CopyrightNotice:
 		event = &CopyrightNoticeEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case SequenceOrTrackName:
 		event = &SequenceOrTrackNameEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case InstrumentName:
 		event = &InstrumentNameEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case Lyrics:
 		event = &LyricsEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case Marker:
 		event = &MarkerEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case CuePoint:
 		event = &CuePointEvent{
-			deltaTime: deltaTime,
-			text:      data,
+			text: data,
 		}
 	case MIDIPortPrefix:
 		event = &MIDIPortPrefixEvent{
-			deltaTime: deltaTime,
-			port:      uint8(data[0]),
+			port: uint8(data[0]),
 		}
 	case MIDIChannelPrefix:
 		event = &MIDIChannelPrefixEvent{
-			deltaTime: deltaTime,
-			channel:   uint8(data[0]),
+			channel: uint8(data[0]),
 		}
 	case SetTempo:
 		tempo := uint32(data[0])
 		tempo = (tempo << 8) + uint32(data[1])
 		tempo = (tempo << 8) + uint32(data[2])
 		event = &SetTempoEvent{
-			deltaTime: deltaTime,
-			tempo:     tempo,
+			tempo: tempo,
 		}
 	case SMPTEOffset:
 		event = &SMPTEOffsetEvent{
-			deltaTime: deltaTime,
-			hour:      data[0],
-			minute:    data[1],
-			second:    data[2],
-			frame:     data[3],
-			subFrame:  data[4],
+			hour:     data[0],
+			minute:   data[1],
+			second:   data[2],
+			frame:    data[3],
+			subFrame: data[4],
 		}
 	case TimeSignature:
 		event = &TimeSignatureEvent{
-			deltaTime:      deltaTime,
 			numerator:      uint8(data[0]),
 			denominator:    uint8(data[1]),
 			metronomePulse: uint8(data[2]),
@@ -307,22 +299,17 @@ func (p *Parser) parseMetaEvent(deltaTime *DeltaTime, eventType uint8, runningSt
 		}
 	case KeySignature:
 		event = &KeySignatureEvent{
-			deltaTime: deltaTime,
-			key:       int8(data[0]),
-			scale:     uint8(data[1]),
+			key:   int8(data[0]),
+			scale: uint8(data[1]),
 		}
 	case SequencerSpecific:
 		event = &SequencerSpecificEvent{
-			deltaTime: deltaTime,
-			data:      data,
+			data: data,
 		}
 	case EndOfTrack:
-		event = &EndOfTrackEvent{
-			deltaTime: deltaTime,
-		}
+		event = &EndOfTrackEvent{}
 	default:
 		event = &AlienEvent{
-			deltaTime:     deltaTime,
 			metaEventType: metaEventType,
 			data:          data,
 		}
@@ -335,7 +322,7 @@ func (p *Parser) parseMetaEvent(deltaTime *DeltaTime, eventType uint8, runningSt
 }
 
 // parseSystemExclusiveEvent parses
-func (p *Parser) parseSystemExclusiveEvent(deltaTime *DeltaTime, eventType uint8, runningStatus bool) (event Event, err error) {
+func (p *Parser) parseSystemExclusiveEvent(eventType uint8) (event Event, err error) {
 	p.debugln("start parsing size of system exclusive event")
 
 	q, err := parseQuantity(p.data[p.position:])
@@ -352,13 +339,11 @@ func (p *Parser) parseSystemExclusiveEvent(deltaTime *DeltaTime, eventType uint8
 	switch eventType {
 	case SystemExclusive:
 		event = &SystemExclusiveEvent{
-			deltaTime: deltaTime,
-			data:      data,
+			data: data,
 		}
 	case DividedSystemExclusive:
 		event = &DividedSystemExclusiveEvent{
-			deltaTime: deltaTime,
-			data:      data,
+			data: data,
 		}
 	}
 
@@ -369,7 +354,7 @@ func (p *Parser) parseSystemExclusiveEvent(deltaTime *DeltaTime, eventType uint8
 }
 
 // parseMIDIControlEvent parses
-func (p *Parser) parseMIDIControlEvent(deltaTime *DeltaTime, eventType uint8, runningStatus bool) (event Event, err error) {
+func (p *Parser) parseMIDIControlEvent(eventType uint8) (event Event, err error) {
 	p.debugln("start parsing MIDI control event")
 
 	channel := uint8(eventType) & 0x0f
@@ -379,59 +364,46 @@ func (p *Parser) parseMIDIControlEvent(deltaTime *DeltaTime, eventType uint8, ru
 	switch eventType & 0xf0 {
 	case NoteOff:
 		event = &NoteOffEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			note:      Note(data[0]),
-			velocity:  data[1],
+			channel:  channel,
+			note:     Note(data[0]),
+			velocity: data[1],
 		}
 	case NoteOn:
 		event = &NoteOnEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			note:      Note(data[0]),
-			velocity:  data[1],
+			channel:  channel,
+			note:     Note(data[0]),
+			velocity: data[1],
 		}
 	case NoteAfterTouch:
 		event = &NoteAfterTouchEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			note:      Note(data[0]),
-			velocity:  data[1],
+			channel:  channel,
+			note:     Note(data[0]),
+			velocity: data[1],
 		}
 	case Controller:
 		event = &ControllerEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			control:   Control(data[0]),
-			value:     data[1],
+			channel: channel,
+			control: Control(data[0]),
+			value:   data[1],
 		}
 	case ProgramChange:
 		sizeOfData = 1
 		event = &ProgramChangeEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			program:   GM(data[0]),
+			channel: channel,
+			program: GM(data[0]),
 		}
 	case ChannelAfterTouch:
 		sizeOfData = 1
 		event = &ChannelAfterTouchEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			velocity:  data[0],
+			channel:  channel,
+			velocity: data[0],
 		}
 	case PitchBend:
 		pitch := uint16(data[0]&0x7f) << 7
 		pitch += uint16(data[1] & 0x7f)
 		event = &PitchBendEvent{
-			deltaTime: deltaTime,
-			channel:   channel,
-			pitch:     pitch,
-		}
-	default:
-		return nil, fmt.Errorf("undefined")
-		//sizeOfMIDIControlEvent = 2
-		event = &ContinuousControllerEvent{
-			deltaTime: deltaTime,
+			channel: channel,
+			pitch:   pitch,
 		}
 	}
 
@@ -443,9 +415,7 @@ func (p *Parser) parseMIDIControlEvent(deltaTime *DeltaTime, eventType uint8, ru
 
 // SetLogger sets logger.
 func (p *Parser) SetLogger(logger *log.Logger) *Parser {
-	if logger != nil {
-		p.logger = logger
-	}
+	p.logger = logger
 
 	return p
 }
@@ -453,7 +423,6 @@ func (p *Parser) SetLogger(logger *log.Logger) *Parser {
 // NewParser returns Parser.
 func NewParser(data []byte) *Parser {
 	return &Parser{
-		data:   data,
-		logger: log.New(ioutil.Discard, "discard logging messages", 0),
+		data: data,
 	}
 }

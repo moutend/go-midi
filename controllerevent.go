@@ -4,10 +4,11 @@ import "fmt"
 
 // ControllerEvent corresponds to controller event.
 type ControllerEvent struct {
-	deltaTime *DeltaTime
-	channel   uint8
-	control   Control
-	value     uint8
+	deltaTime     *DeltaTime
+	runningStatus bool
+	channel       uint8
+	control       Control
+	value         uint8
 }
 
 // DeltaTime returns delta time of controller event.
@@ -18,11 +19,6 @@ func (e *ControllerEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of controller event.
-func (e *ControllerEvent) String() string {
-	return fmt.Sprintf("&ControllerEvent{channel: %v, control: %v, value: %v}", e.channel, e.control, e.value)
-}
-
 // Serialize serializes controller event.
 func (e *ControllerEvent) Serialize() []byte {
 	bs := []byte{}
@@ -31,6 +27,16 @@ func (e *ControllerEvent) Serialize() []byte {
 	bs = append(bs, byte(e.control), e.value)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *ControllerEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *ControllerEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetChannel sets channel.
@@ -76,6 +82,11 @@ func (e *ControllerEvent) SetValue(value uint8) error {
 // Value returns value.
 func (e *ControllerEvent) Value() uint8 {
 	return e.value
+}
+
+// String returns string representation of controller event.
+func (e *ControllerEvent) String() string {
+	return fmt.Sprintf("&ControllerEvent{channel: %v, control: %v, value: %v}", e.channel, e.control, e.value)
 }
 
 // NewControllerEvent returns ControllerEvent with the given parameter.

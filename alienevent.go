@@ -5,6 +5,7 @@ import "fmt"
 // Alien represents unknown meta event.
 type AlienEvent struct {
 	deltaTime     *DeltaTime
+	runningStatus bool
 	metaEventType uint8
 	data          []byte
 }
@@ -15,11 +16,6 @@ func (e *AlienEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of alien event.
-func (e *AlienEvent) String() string {
-	return fmt.Sprintf("&AlienEvent{metaEventType: 0x%x, data: %v bytes}", e.metaEventType, len(e.Data()))
 }
 
 // Serialize serializes alien event.
@@ -34,6 +30,16 @@ func (e *AlienEvent) Serialize() []byte {
 	bs = append(bs, e.Data()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *AlienEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *AlienEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetMetaEventType sets meta event type.
@@ -64,6 +70,11 @@ func (e *AlienEvent) Data() []byte {
 		e.data = []byte{}
 	}
 	return e.data
+}
+
+// String returns string representation of alien event.
+func (e *AlienEvent) String() string {
+	return fmt.Sprintf("&AlienEvent{metaEventType: 0x%x, data: %v bytes}", e.metaEventType, len(e.Data()))
 }
 
 // NewAlienEvent returns AlienEvent with the given parameter.

@@ -4,8 +4,9 @@ import "fmt"
 
 // MIDIChannelPrefix corresponds to MIDI channel prefix meta event.
 type MIDIChannelPrefixEvent struct {
-	deltaTime *DeltaTime
-	channel   uint8
+	deltaTime     *DeltaTime
+	runningStatus bool
+	channel       uint8
 }
 
 // DeltaTime returns delta time of MIDI channel prefix event.
@@ -16,11 +17,6 @@ func (e *MIDIChannelPrefixEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of MIDI channel prefix meta event.
-func (e *MIDIChannelPrefixEvent) String() string {
-	return fmt.Sprintf("&MIDIChannelPrefixEvent{channel: %v}", e.channel)
-}
-
 // Serialize serializes MIDI channel prefix meta event.
 func (e *MIDIChannelPrefixEvent) Serialize() []byte {
 	bs := []byte{}
@@ -29,6 +25,16 @@ func (e *MIDIChannelPrefixEvent) Serialize() []byte {
 	bs = append(bs, 0x01, e.channel)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *MIDIChannelPrefixEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *MIDIChannelPrefixEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetChannel sets channel.
@@ -44,6 +50,11 @@ func (e *MIDIChannelPrefixEvent) SetChannel(channel uint8) error {
 // Channel returns channel.
 func (e *MIDIChannelPrefixEvent) Channel() uint8 {
 	return e.channel
+}
+
+// String returns string representation of MIDI channel prefix meta event.
+func (e *MIDIChannelPrefixEvent) String() string {
+	return fmt.Sprintf("&MIDIChannelPrefixEvent{channel: %v}", e.channel)
 }
 
 // NewMIDIChannelPrefixEvent returns MIDIChannelPrefixEvent with the given parameter.

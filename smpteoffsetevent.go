@@ -4,12 +4,13 @@ import "fmt"
 
 // SMPTEOffsetEvent corresponds to SMPTE offset event.
 type SMPTEOffsetEvent struct {
-	deltaTime *DeltaTime
-	hour      uint8
-	minute    uint8
-	second    uint8
-	frame     uint8
-	subFrame  uint8
+	deltaTime     *DeltaTime
+	runningStatus bool
+	hour          uint8
+	minute        uint8
+	second        uint8
+	frame         uint8
+	subFrame      uint8
 }
 
 // DeltaTime returns delta time of SMPTE offset event.
@@ -20,11 +21,6 @@ func (e *SMPTEOffsetEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of SMPTE offset event.
-func (e *SMPTEOffsetEvent) String() string {
-	return fmt.Sprintf("&SMPTEOffsetEvent{hour: %v, minute: %v, second: %v, frame: %v, subFrame: %v}", e.hour, e.minute, e.second, e.frame, e.subFrame)
-}
-
 // Serialize serializes SMPTE offset event.
 func (e *SMPTEOffsetEvent) Serialize() []byte {
 	bs := []byte{}
@@ -33,6 +29,16 @@ func (e *SMPTEOffsetEvent) Serialize() []byte {
 	bs = append(bs, 0x05, e.hour, e.minute, e.second, e.frame, e.subFrame)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *SMPTEOffsetEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *SMPTEOffsetEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetHour sets hour.
@@ -108,6 +114,11 @@ func (e *SMPTEOffsetEvent) SetSubFrame(subFrame uint8) error {
 // SubFrame returns sub frame.
 func (e *SMPTEOffsetEvent) SubFrame() uint8 {
 	return e.subFrame
+}
+
+// String returns string representation of SMPTE offset event.
+func (e *SMPTEOffsetEvent) String() string {
+	return fmt.Sprintf("&SMPTEOffsetEvent{hour: %v, minute: %v, second: %v, frame: %v, subFrame: %v}", e.hour, e.minute, e.second, e.frame, e.subFrame)
 }
 
 // NewSMPTEOffsetEvent returns SMPTEOffsetEvent with the given parameter.

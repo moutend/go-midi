@@ -4,8 +4,9 @@ import "fmt"
 
 // MarkerEvent corresponds to marker event.
 type MarkerEvent struct {
-	deltaTime *DeltaTime
-	text      []byte
+	deltaTime     *DeltaTime
+	runningStatus bool
+	text          []byte
 }
 
 // DeltaTime returns delta time of marker event.
@@ -14,11 +15,6 @@ func (e *MarkerEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of marker event.
-func (e *MarkerEvent) String() string {
-	return fmt.Sprintf("&MarkerEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes marker event.
@@ -33,6 +29,16 @@ func (e *MarkerEvent) Serialize() []byte {
 	bs = append(bs, e.Text()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *MarkerEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *MarkerEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetText sets text.
@@ -55,6 +61,11 @@ func (e *MarkerEvent) Text() []byte {
 	copy(text, e.text)
 
 	return text
+}
+
+// String returns string representation of marker event.
+func (e *MarkerEvent) String() string {
+	return fmt.Sprintf("&MarkerEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // NewMarkerEvent returns MarkerEvent with the given parameter.

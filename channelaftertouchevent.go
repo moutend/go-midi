@@ -4,9 +4,10 @@ import "fmt"
 
 // ChannelAfterTouchEvent corresponds to channel after touch event.
 type ChannelAfterTouchEvent struct {
-	deltaTime *DeltaTime
-	channel   uint8
-	velocity  uint8
+	deltaTime     *DeltaTime
+	runningStatus bool
+	channel       uint8
+	velocity      uint8
 }
 
 // DeltaTime returns delta time of channel after touch event.
@@ -17,11 +18,6 @@ func (e *ChannelAfterTouchEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of channel after touch event.
-func (e *ChannelAfterTouchEvent) String() string {
-	return fmt.Sprintf("&ChannelAfterTouchEvent{channel: %v, velocity: %v}", e.channel, e.velocity)
-}
-
 // Serialize serializes channel after touch event.
 func (e *ChannelAfterTouchEvent) Serialize() []byte {
 	bs := []byte{}
@@ -30,6 +26,16 @@ func (e *ChannelAfterTouchEvent) Serialize() []byte {
 	bs = append(bs, e.velocity)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *ChannelAfterTouchEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *ChannelAfterTouchEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetChannel sets channel.
@@ -60,6 +66,11 @@ func (e *ChannelAfterTouchEvent) SetVelocity(velocity uint8) error {
 // Velocity returns velocity.
 func (e *ChannelAfterTouchEvent) Velocity() uint8 {
 	return e.velocity
+}
+
+// String returns string representation of channel after touch event.
+func (e *ChannelAfterTouchEvent) String() string {
+	return fmt.Sprintf("&ChannelAfterTouchEvent{channel: %v, velocity: %v}", e.channel, e.velocity)
 }
 
 // NewChannelAfterTouchEvent returns ChannelAfterTouchEvent with the given parameter.

@@ -4,9 +4,10 @@ import "fmt"
 
 // KeySignatureEvent corresponds to key signature meta event.
 type KeySignatureEvent struct {
-	deltaTime *DeltaTime
-	key       int8
-	scale     uint8
+	deltaTime     *DeltaTime
+	runningStatus bool
+	key           int8
+	scale         uint8
 }
 
 // DeltaTime returns delta time of key signature event.
@@ -17,11 +18,6 @@ func (e *KeySignatureEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of key signature event.
-func (e *KeySignatureEvent) String() string {
-	return fmt.Sprintf("&KeySignatureEvent{key: %v, scale: %v}", e.key, e.scale)
-}
-
 // Serialize serializes key signature event.
 func (e *KeySignatureEvent) Serialize() []byte {
 	bs := []byte{}
@@ -30,6 +26,16 @@ func (e *KeySignatureEvent) Serialize() []byte {
 	bs = append(bs, 0x02, byte(e.key), e.scale)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *KeySignatureEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *KeySignatureEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetKey sets key.
@@ -60,6 +66,11 @@ func (e *KeySignatureEvent) SetScale(scale uint8) error {
 // Scale returns scale.
 func (e *KeySignatureEvent) Scale() uint8 {
 	return e.scale
+}
+
+// String returns string representation of key signature event.
+func (e *KeySignatureEvent) String() string {
+	return fmt.Sprintf("&KeySignatureEvent{key: %v, scale: %v}", e.key, e.scale)
 }
 
 // NewKeySignatureEvent returns KeySignatureEvent with the given parameter.

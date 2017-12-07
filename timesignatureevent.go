@@ -5,6 +5,7 @@ import "fmt"
 // TimeSignatureEvent corresponds to time signature meta event.
 type TimeSignatureEvent struct {
 	deltaTime      *DeltaTime
+	runningStatus  bool
 	numerator      uint8
 	denominator    uint8
 	metronomePulse uint8
@@ -19,11 +20,6 @@ func (e *TimeSignatureEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of time signature event.
-func (e *TimeSignatureEvent) String() string {
-	return fmt.Sprintf("&TimeSignatureEvent{numerator: %v, denominator: %v, metronomePulse: %v, quarterNote: %v}", e.numerator, e.denominator, e.metronomePulse, e.quarterNote)
-}
-
 // Serialize serializes time signature event.
 func (e *TimeSignatureEvent) Serialize() []byte {
 	bs := []byte{}
@@ -32,6 +28,16 @@ func (e *TimeSignatureEvent) Serialize() []byte {
 	bs = append(bs, 0x04, e.numerator, e.denominator, e.metronomePulse, e.quarterNote)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *TimeSignatureEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *TimeSignatureEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetNumerator sets numerator.
@@ -80,6 +86,11 @@ func (e *TimeSignatureEvent) SetQuarterNote(quarterNote uint8) error {
 // QuarterNote returns quarterNote.
 func (e *TimeSignatureEvent) QuarterNote() uint8 {
 	return e.quarterNote
+}
+
+// String returns string representation of time signature event.
+func (e *TimeSignatureEvent) String() string {
+	return fmt.Sprintf("&TimeSignatureEvent{numerator: %v, denominator: %v, metronomePulse: %v, quarterNote: %v}", e.numerator, e.denominator, e.metronomePulse, e.quarterNote)
 }
 
 // NewTimeSignatureEvent returns TimeSignatureEvent with the given parameter.

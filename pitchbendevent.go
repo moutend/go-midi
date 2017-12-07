@@ -4,9 +4,10 @@ import "fmt"
 
 // PitchBendEvent corresponds to pitch bend event.
 type PitchBendEvent struct {
-	deltaTime *DeltaTime
-	channel   uint8
-	pitch     uint16
+	deltaTime     *DeltaTime
+	runningStatus bool
+	channel       uint8
+	pitch         uint16
 }
 
 // DeltaTime returns delta time of pitch bend event.
@@ -15,11 +16,6 @@ func (e *PitchBendEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of pitch bend event.
-func (e *PitchBendEvent) String() string {
-	return fmt.Sprintf("&PitchBendEvent{channel: %v, pitch: %v}", e.channel, e.pitch)
 }
 
 // Serialize serializes pitch bend event.
@@ -33,6 +29,16 @@ func (e *PitchBendEvent) Serialize() []byte {
 	bs = append(bs, msb, lsb)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *PitchBendEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *PitchBendEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetChannel sets channel.
@@ -63,6 +69,11 @@ func (e *PitchBendEvent) SetPitch(pitch uint16) error {
 // Pitch returns pitch.
 func (e *PitchBendEvent) Pitch() uint16 {
 	return e.pitch
+}
+
+// String returns string representation of pitch bend event.
+func (e *PitchBendEvent) String() string {
+	return fmt.Sprintf("&PitchBendEvent{channel: %v, pitch: %v}", e.channel, e.pitch)
 }
 
 // NewPitchBendEvent returns PitchBendEvent with the given parameter.

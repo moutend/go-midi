@@ -4,5 +4,7 @@ package midi
 type Event interface {
 	DeltaTime() *DeltaTime
 	Serialize() []byte
-	// RunningStatus() bool
+
+	SetRunningStatus(bool)
+	RunningStatus() bool
 }

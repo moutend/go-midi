@@ -4,9 +4,10 @@ import "fmt"
 
 // ProgramChangeEvent corresponds to program change event.
 type ProgramChangeEvent struct {
-	deltaTime *DeltaTime
-	channel   uint8
-	program   GM
+	deltaTime     *DeltaTime
+	runningStatus bool
+	channel       uint8
+	program       GM
 }
 
 // DeltaTime returns delta time of program change event.
@@ -18,11 +19,6 @@ func (e *ProgramChangeEvent) DeltaTime() *DeltaTime {
 	return e.deltaTime
 }
 
-// String returns string representation of program change event.
-func (e *ProgramChangeEvent) String() string {
-	return fmt.Sprintf("&ProgramChangeEvent{channel: %v, program: %v}", e.channel, e.program)
-}
-
 // Serialize serializes program change event.
 func (e *ProgramChangeEvent) Serialize() []byte {
 	bs := []byte{}
@@ -31,6 +27,16 @@ func (e *ProgramChangeEvent) Serialize() []byte {
 	bs = append(bs, byte(e.program))
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *ProgramChangeEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *ProgramChangeEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetChannel sets channel.
@@ -61,6 +67,11 @@ func (e *ProgramChangeEvent) SetProgram(program GM) error {
 // Program returns program.
 func (e *ProgramChangeEvent) Program() GM {
 	return e.program
+}
+
+// String returns string representation of program change event.
+func (e *ProgramChangeEvent) String() string {
+	return fmt.Sprintf("&ProgramChangeEvent{channel: %v, program: %v}", e.channel, e.program)
 }
 
 // NewProgramChangeEvent returns ProgramChangeEvent with the given parameter.

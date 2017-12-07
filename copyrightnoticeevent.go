@@ -4,8 +4,9 @@ import "fmt"
 
 // CopyrightNoticeEvent corresponds to copyright notice event.
 type CopyrightNoticeEvent struct {
-	deltaTime *DeltaTime
-	text      []byte
+	deltaTime     *DeltaTime
+	runningStatus bool
+	text          []byte
 }
 
 // DeltaTime returns delta time of copyright notice event.
@@ -14,11 +15,6 @@ func (e *CopyrightNoticeEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of copyright notice event.
-func (e *CopyrightNoticeEvent) String() string {
-	return fmt.Sprintf("&CopyrightNoticeEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes copyright notice event.
@@ -33,6 +29,16 @@ func (e *CopyrightNoticeEvent) Serialize() []byte {
 	bs = append(bs, e.Text()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *CopyrightNoticeEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *CopyrightNoticeEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetText sets text.
@@ -55,6 +61,11 @@ func (e *CopyrightNoticeEvent) Text() []byte {
 	copy(text, e.text)
 
 	return text
+}
+
+// String returns string representation of copyright notice event.
+func (e *CopyrightNoticeEvent) String() string {
+	return fmt.Sprintf("&CopyrightNoticeEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // NewCopyrightNoticeEvent returns CopyrightNoticeEvent with the given parameter.

@@ -8,16 +8,33 @@ type Track struct {
 // Serialize serializes track.
 func (t *Track) Serialize() []byte {
 	data := []byte{}
+
 	for _, event := range t.Events {
-		data = append(data, event.Serialize()...)
+		b := event.Serialize()
+
+		if event.RunningStatus() {
+			dt := event.DeltaTime().Quantity().Value()
+			sizeOfDeltaTime := len(dt)
+			switch b[sizeOfDeltaTime] {
+			case 0xff:
+				data = append(data, b[2:]...)
+			default:
+				data = append(data, dt...)
+				data = append(data, b[sizeOfDeltaTime+1:]...)
+			}
+		} else {
+			data = append(data, b...)
+		}
 	}
 
+	stream := []byte("MTrk")
+
 	sizeOfData := uint32(len(data))
-	stream := []byte{0x4d, 0x54, 0x72, 0x6B} // MTrk
 	stream = append(stream, byte(sizeOfData>>24))
 	stream = append(stream, byte((sizeOfData&0xff0000)>>16))
 	stream = append(stream, byte((sizeOfData&0xff00)>>8))
 	stream = append(stream, byte(sizeOfData&0xff))
+
 	stream = append(stream, data...)
 
 	return stream

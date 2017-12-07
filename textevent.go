@@ -4,8 +4,9 @@ import "fmt"
 
 // TextEvent corresponds to text event.
 type TextEvent struct {
-	deltaTime *DeltaTime
-	text      []byte
+	deltaTime     *DeltaTime
+	runningStatus bool
+	text          []byte
 }
 
 // DeltaTime returns delta time of text event.
@@ -14,11 +15,6 @@ func (e *TextEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of text event.
-func (e *TextEvent) String() string {
-	return fmt.Sprintf("&TextEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // Serialize serializes text event.
@@ -33,6 +29,16 @@ func (e *TextEvent) Serialize() []byte {
 	bs = append(bs, e.Text()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *TextEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *TextEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetText sets text.
@@ -55,6 +61,11 @@ func (e *TextEvent) Text() []byte {
 	copy(text, e.text)
 
 	return text
+}
+
+// String returns string representation of text event.
+func (e *TextEvent) String() string {
+	return fmt.Sprintf("&TextEvent{text: \"%v\"}", string(e.Text()))
 }
 
 // NewTextEvent returns TextEvent with the given parameter.

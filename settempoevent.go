@@ -4,8 +4,9 @@ import "fmt"
 
 // SetTempoEvent corresponds to set tempo event.
 type SetTempoEvent struct {
-	deltaTime *DeltaTime
-	tempo     uint32
+	deltaTime     *DeltaTime
+	runningStatus bool
+	tempo         uint32
 }
 
 // DeltaTime returns delta time of set tempo event.
@@ -14,11 +15,6 @@ func (e *SetTempoEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of tempo event.
-func (e *SetTempoEvent) String() string {
-	return fmt.Sprintf("&SetTempoEvent{tempo: %v}", e.tempo)
 }
 
 // Serialize serializes set tempo event.
@@ -34,6 +30,16 @@ func (e *SetTempoEvent) Serialize() []byte {
 	return bs
 }
 
+// SetRunningStatus sets running status.
+func (e *SetTempoEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *SetTempoEvent) RunningStatus() bool {
+	return e.runningStatus
+}
+
 // SetSetTempo sets text.
 func (e *SetTempoEvent) SetTempo(tempo uint32) error {
 	if tempo > 0x7fffff {
@@ -47,6 +53,11 @@ func (e *SetTempoEvent) SetTempo(tempo uint32) error {
 // Tempo returns tempo.
 func (e *SetTempoEvent) Tempo() uint32 {
 	return e.tempo
+}
+
+// String returns string representation of tempo event.
+func (e *SetTempoEvent) String() string {
+	return fmt.Sprintf("&SetTempoEvent{tempo: %v}", e.tempo)
 }
 
 // NewSetTempoEvent returns SetTempoEvent with the given parameter.

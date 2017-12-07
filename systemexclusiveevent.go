@@ -4,8 +4,9 @@ import "fmt"
 
 // SystemExclusiveEvent corresponds to system exclusive meta event.
 type SystemExclusiveEvent struct {
-	deltaTime *DeltaTime
-	data      []byte
+	deltaTime     *DeltaTime
+	runningStatus bool
+	data          []byte
 }
 
 // DeltaTime returns delta time of system exclusive event.
@@ -14,11 +15,6 @@ func (e *SystemExclusiveEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of system exclusive event.
-func (e *SystemExclusiveEvent) String() string {
-	return fmt.Sprintf("&SystemExclusiveEvent{data: %v bytes}", len(e.Data()))
 }
 
 // Serialize serializes system exclusive event.
@@ -32,6 +28,16 @@ func (e *SystemExclusiveEvent) Serialize() []byte {
 	bs = append(bs, e.Data()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *SystemExclusiveEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *SystemExclusiveEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetData sets data.
@@ -51,6 +57,11 @@ func (e *SystemExclusiveEvent) Data() []byte {
 	}
 
 	return e.data
+}
+
+// String returns string representation of system exclusive event.
+func (e *SystemExclusiveEvent) String() string {
+	return fmt.Sprintf("&SystemExclusiveEvent{data: %v bytes}", len(e.Data()))
 }
 
 // NewSystemExclusiveEvent returns SystemExclusiveEvent with the given parameter.

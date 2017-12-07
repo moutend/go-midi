@@ -4,8 +4,9 @@ import "fmt"
 
 // SequencerSpecificEvent corresponds to sequencer specific event.
 type SequencerSpecificEvent struct {
-	deltaTime *DeltaTime
-	data      []byte
+	deltaTime     *DeltaTime
+	runningStatus bool
+	data          []byte
 }
 
 // DeltaTime returns delta time.
@@ -14,11 +15,6 @@ func (e *SequencerSpecificEvent) DeltaTime() *DeltaTime {
 		e.deltaTime = &DeltaTime{}
 	}
 	return e.deltaTime
-}
-
-// String returns string representation of sequencer specific event.
-func (e *SequencerSpecificEvent) String() string {
-	return fmt.Sprintf("&SequencerSpecificEvent{data: %v bytes}", len(e.Data()))
 }
 
 // Serialize serializes sequencer specific event.
@@ -33,6 +29,16 @@ func (e *SequencerSpecificEvent) Serialize() []byte {
 	bs = append(bs, e.Data()...)
 
 	return bs
+}
+
+// SetRunningStatus sets running status.
+func (e *SequencerSpecificEvent) SetRunningStatus(status bool) {
+	e.runningStatus = status
+}
+
+// RunningStatus returns running status.
+func (e *SequencerSpecificEvent) RunningStatus() bool {
+	return e.runningStatus
 }
 
 // SetData sets data.
@@ -51,6 +57,11 @@ func (e *SequencerSpecificEvent) Data() []byte {
 		e.data = []byte{}
 	}
 	return e.data
+}
+
+// String returns string representation of sequencer specific event.
+func (e *SequencerSpecificEvent) String() string {
+	return fmt.Sprintf("&SequencerSpecificEvent{data: %v bytes}", len(e.Data()))
 }
 
 // NewSequencerSpecificEvent returns SequencerSpecificEvent with the given parameter.
