@@ -34,8 +34,8 @@ func TestParser_parseHeader(t *testing.T) {
 		if formatType != 1 {
 			t.Fatalf("expected: 1 actual: %v", formatType)
 		}
-		if numberOfTracks != 18 {
-			t.Fatalf("expected: 18 actual: %v", numberOfTracks)
+		if numberOfTracks != 18 && numberOfTracks != 4 {
+			t.Fatalf("number of track must be 18 or 4")
 		}
 		if timeDivision != 480 {
 			t.Fatalf("expected: 480 actual: %v", timeDivision)
