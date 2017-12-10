@@ -1,8 +1,13 @@
 package midi
 
+import (
+	"github.com/moutend/go-midi/constant"
+	"github.com/moutend/go-midi/event"
+)
+
 // Track represents MIDI track.
 type Track struct {
-	Events []Event
+	Events []event.Event
 }
 
 // Serialize serializes track.
@@ -10,20 +15,19 @@ func (t *Track) Serialize() []byte {
 	data := []byte{}
 
 	for _, event := range t.Events {
-		b := event.Serialize()
+		data = append(data, event.DeltaTime().Quantity().Value()...)
 
 		if event.RunningStatus() {
-			dt := event.DeltaTime().Quantity().Value()
-			sizeOfDeltaTime := len(dt)
-			switch b[sizeOfDeltaTime] {
-			case 0xff:
-				data = append(data, b[2:]...)
+			bs := event.Serialize()
+
+			switch bs[0] {
+			case constant.Meta:
+				data = append(data, bs[2:]...)
 			default:
-				data = append(data, dt...)
-				data = append(data, b[sizeOfDeltaTime+1:]...)
+				data = append(data, bs[1:]...)
 			}
 		} else {
-			data = append(data, b...)
+			data = append(data, event.Serialize()...)
 		}
 	}
 

@@ -7,10 +7,7 @@ import (
 	"testing"
 )
 
-var (
-	bigdata    []byte
-	pathsToMid []string
-)
+var pathsToMid []string
 
 func walkFunc(path string, info os.FileInfo, err error) error {
 	if strings.HasSuffix(path, ".mid") {
@@ -20,7 +17,6 @@ func walkFunc(path string, info os.FileInfo, err error) error {
 }
 
 func setup() {
-	bigdata = make([]byte, 0x10000000)
 	filepath.Walk("testdata", walkFunc)
 }
 

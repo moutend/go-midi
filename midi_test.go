@@ -12,7 +12,7 @@ func TestMIDI_Serialize(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		m, err := NewParser(file).Parse(file)
+		m, err := NewParser(file).Parse()
 		if err != nil {
 			t.Fatal(err)
 		}

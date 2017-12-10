@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"testing"
+
+	"github.com/moutend/go-midi/event"
 )
 
 func TestParser_Parse(t *testing.T) {
@@ -12,7 +14,7 @@ func TestParser_Parse(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		_, err = NewParser(file).Parse(file)
+		_, err = NewParser(file).Parse()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -73,23 +75,23 @@ func TestParser_parseTrack(t *testing.T) {
 	if len(track.Events) != 3 {
 		t.Fatalf("number of events must be 3")
 	}
-	for i, event := range track.Events {
+	for i, e := range track.Events {
 		switch i {
 		case 0:
 			expectedText := "text event1"
-			actualText := string(event.(*TextEvent).Text())
+			actualText := string(e.(*event.TextEvent).Text())
 			if expectedText != actualText {
 				t.Fatalf("expected: %v actual: %v", expectedText, actualText)
 			}
 		case 1:
 			expectedText := "text event2"
-			actualText := string(event.(*TextEvent).Text())
+			actualText := string(e.(*event.TextEvent).Text())
 			if expectedText != actualText {
 				t.Fatalf("expected: %v actual: %v", expectedText, actualText)
 			}
 		case 2:
-			switch event.(type) {
-			case *EndOfTrackEvent:
+			switch e.(type) {
+			case *event.EndOfTrackEvent:
 				break
 			default:
 				t.Fatalf("type of event must be EndOfTrackEvent")
@@ -100,27 +102,27 @@ func TestParser_parseTrack(t *testing.T) {
 
 func TestParser_parseEvent(t *testing.T) {
 	stream := []byte{0x00, 0xff, 0x02, 0x12, 0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x28, 0x43, 0x29, 0x20, 0x32, 0x30, 0x31, 0x37}
-	event, err := NewParser(stream).parseEvent()
+	e, err := NewParser(stream).parseEvent()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sizeOfEvent := len(event.Serialize())
-	if sizeOfEvent != 22 {
-		t.Fatalf("expected: size of event = 22, actual: size of event = %v", sizeOfEvent)
+	sizeOfEvent := len(e.Serialize())
+	if sizeOfEvent != 21 {
+		t.Fatalf("expected: size of event = 21, actual: size of event = %v", sizeOfEvent)
 	}
-	if event.DeltaTime().Quantity().Uint32() != 0 {
-		t.Fatalf("expected: 0 actual: %v", event.DeltaTime().Quantity().Uint32())
+	if e.DeltaTime().Quantity().Uint32() != 0 {
+		t.Fatalf("expected: 0 actual: %v", e.DeltaTime().Quantity().Uint32())
 	}
-	switch event.(type) {
-	case *CopyrightNoticeEvent:
+	switch e.(type) {
+	case *event.CopyrightNoticeEvent:
 		break
 	default:
 		t.Fatalf("type of event must be CopyrightNoticeEvent")
 	}
 
 	expectedText := stream[4:]
-	actualText := event.(*CopyrightNoticeEvent).text
+	actualText := e.(*event.CopyrightNoticeEvent).Text()
 
 	if len(expectedText) != len(actualText) {
 		t.Fatalf("expect: len(event.(*CopyrightNoticeEvent).text) = %v actual: len(event.(*CopyrightNoticeEvent).text) = %v", len(expectedText), len(actualText))

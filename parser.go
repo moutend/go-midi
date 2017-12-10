@@ -3,6 +3,11 @@ package midi
 import (
 	"fmt"
 	"log"
+
+	"github.com/moutend/go-midi/constant"
+	"github.com/moutend/go-midi/deltatime"
+	"github.com/moutend/go-midi/event"
+	"github.com/moutend/go-midi/quantity"
 )
 
 type Parser struct {
@@ -16,7 +21,7 @@ func (p *Parser) debugf(format string, v ...interface{}) {
 	if p.logger == nil {
 		return
 	}
-	p.logger.Print(fmt.Sprintf("midi: [%v] ", p.position))
+	format = fmt.Sprintf("midi: [%v] %v", p.position, format)
 	p.logger.Printf(format, v...)
 }
 
@@ -24,13 +29,15 @@ func (p *Parser) debugln(v ...interface{}) {
 	if p.logger == nil {
 		return
 	}
-	p.logger.Print(fmt.Sprintf("midi: [%v] ", p.position))
-	p.logger.Println(v...)
+	prefix := fmt.Sprintf("midi: [%v]", p.position)
+	a := []interface{}{prefix}
+	a = append(a, v...)
+	p.logger.Println(a...)
 }
 
 // Parse parses standard MIDI (*.mid) data.
-func (p *Parser) Parse(stream []byte) (*MIDI, error) {
-	p.debugf("start parsing %v bytes\n", len(stream))
+func (p *Parser) Parse() (*MIDI, error) {
+	p.debugf("start parsing %v bytes\n", len(p.data))
 
 	formatType, numberOfTracks, timeDivision, err := p.parseHeader()
 	if err != nil {
@@ -149,22 +156,22 @@ func (p *Parser) parseTracks(numberOfTracks uint16) ([]*Track, error) {
 func (p *Parser) parseTrack() (*Track, error) {
 	sizeOfStream := len(p.data)
 	track := &Track{
-		Events: []Event{},
+		Events: []event.Event{},
 	}
 	for {
 		if p.position >= sizeOfStream {
 			break
 		}
 
-		event, err := p.parseEvent()
+		e, err := p.parseEvent()
 		if err != nil {
 			return nil, err
 		}
 
-		track.Events = append(track.Events, event)
+		track.Events = append(track.Events, e)
 
-		switch event.(type) {
-		case *EndOfTrackEvent:
+		switch e.(type) {
+		case *event.EndOfTrackEvent:
 			return track, nil
 		}
 	}
@@ -173,10 +180,10 @@ func (p *Parser) parseTrack() (*Track, error) {
 }
 
 // parseEvent parses stream begins with delta time.
-func (p *Parser) parseEvent() (event Event, err error) {
+func (p *Parser) parseEvent() (event event.Event, err error) {
 	p.debugln("start parsing delta time")
 
-	deltaTime, err := parseDeltaTime(p.data[p.position:])
+	deltaTime, err := deltatime.Parse(p.data[p.position:])
 	if err != nil {
 		return nil, err
 	}
@@ -202,9 +209,9 @@ func (p *Parser) parseEvent() (event Event, err error) {
 	p.debugf("parsing event type completed (0x%x)", eventType)
 
 	switch eventType {
-	case Meta:
+	case constant.Meta:
 		event, err = p.parseMetaEvent(eventType)
-	case SystemExclusive, DividedSystemExclusive:
+	case constant.SystemExclusive, constant.DividedSystemExclusive:
 		event, err = p.parseSystemExclusiveEvent(eventType)
 	default:
 		event, err = p.parseMIDIControlEvent(eventType)
@@ -217,7 +224,7 @@ func (p *Parser) parseEvent() (event Event, err error) {
 }
 
 // parseMetaEvent parses
-func (p *Parser) parseMetaEvent(eventType uint8) (event Event, err error) {
+func (p *Parser) parseMetaEvent(eventType uint8) (e event.Event, err error) {
 	p.debugln("start parsing meta event type")
 
 	metaEventType := p.data[p.position]
@@ -227,134 +234,132 @@ func (p *Parser) parseMetaEvent(eventType uint8) (event Event, err error) {
 
 	p.debugln("start parsing size of meta event")
 
-	q, err := parseQuantity(p.data[p.position:])
+	q, err := quantity.Parse(p.data[p.position:])
 	if err != nil {
 		return nil, err
 	}
 
-	p.position += len(q.value)
+	p.position += len(q.Value())
 	p.debugf("parsing size of meta event completed (%v)", q.Uint32())
 
 	sizeOfData := int(q.Uint32())
 	data := p.data[p.position : p.position+sizeOfData]
 
 	switch metaEventType {
-	case Text:
-		event = &TextEvent{
-			text: data,
-		}
-	case CopyrightNotice:
-		event = &CopyrightNoticeEvent{
-			text: data,
-		}
-	case SequenceOrTrackName:
-		event = &SequenceOrTrackNameEvent{
-			text: data,
-		}
-	case InstrumentName:
-		event = &InstrumentNameEvent{
-			text: data,
-		}
-	case Lyrics:
-		event = &LyricsEvent{
-			text: data,
-		}
-	case Marker:
-		event = &MarkerEvent{
-			text: data,
-		}
-	case CuePoint:
-		event = &CuePointEvent{
-			text: data,
-		}
-	case MIDIPortPrefix:
-		event = &MIDIPortPrefixEvent{
-			port: uint8(data[0]),
-		}
-	case MIDIChannelPrefix:
-		event = &MIDIChannelPrefixEvent{
-			channel: uint8(data[0]),
-		}
-	case SetTempo:
+	case constant.Text:
+		v := &event.TextEvent{}
+		v.SetText(data)
+		e = v
+	case constant.CopyrightNotice:
+		v := &event.CopyrightNoticeEvent{}
+		v.SetText(data)
+		e = v
+	case constant.SequenceOrTrackName:
+		v := &event.SequenceOrTrackNameEvent{}
+		v.SetText(data)
+		e = v
+	case constant.InstrumentName:
+		v := &event.InstrumentNameEvent{}
+		v.SetText(data)
+		e = v
+	case constant.Lyrics:
+		v := &event.LyricsEvent{}
+		v.SetText(data)
+		e = v
+	case constant.Marker:
+		v := &event.MarkerEvent{}
+		v.SetText(data)
+		e = v
+	case constant.CuePoint:
+		v := &event.CuePointEvent{}
+		v.SetText(data)
+		e = v
+	case constant.MIDIPortPrefix:
+		v := &event.MIDIPortPrefixEvent{}
+		v.SetPort(data[0])
+		e = v
+	case constant.MIDIChannelPrefix:
+		v := &event.MIDIChannelPrefixEvent{}
+		v.SetChannel(data[0])
+		e = v
+	case constant.SetTempo:
 		tempo := uint32(data[0])
 		tempo = (tempo << 8) + uint32(data[1])
 		tempo = (tempo << 8) + uint32(data[2])
-		event = &SetTempoEvent{
-			tempo: tempo,
-		}
-	case SMPTEOffset:
-		event = &SMPTEOffsetEvent{
-			hour:     data[0],
-			minute:   data[1],
-			second:   data[2],
-			frame:    data[3],
-			subFrame: data[4],
-		}
-	case TimeSignature:
-		event = &TimeSignatureEvent{
-			numerator:      uint8(data[0]),
-			denominator:    uint8(data[1]),
-			metronomePulse: uint8(data[2]),
-			quarterNote:    uint8(data[3]),
-		}
-	case KeySignature:
-		event = &KeySignatureEvent{
-			key:   int8(data[0]),
-			scale: uint8(data[1]),
-		}
-	case SequencerSpecific:
-		event = &SequencerSpecificEvent{
-			data: data,
-		}
-	case EndOfTrack:
-		event = &EndOfTrackEvent{}
+		v := &event.SetTempoEvent{}
+		v.SetTempo(tempo)
+		e = v
+	case constant.SMPTEOffset:
+		v := &event.SMPTEOffsetEvent{}
+		v.SetHour(data[0])
+		v.SetMinute(data[1])
+		v.SetSecond(data[2])
+		v.SetFrame(data[3])
+		v.SetSubFrame(data[4])
+		e = v
+	case constant.TimeSignature:
+		v := &event.TimeSignatureEvent{}
+		v.SetNumerator(data[0])
+		v.SetDenominator(data[1])
+		v.SetMetronomePulse(data[2])
+		v.SetQuarterNote(data[3])
+		e = v
+	case constant.KeySignature:
+		v := &event.KeySignatureEvent{}
+		v.SetKey(int8(data[0]))
+		v.SetScale(data[1])
+	case constant.SequencerSpecific:
+		v := &event.SequencerSpecificEvent{}
+		v.SetData(data)
+		e = v
+	case constant.EndOfTrack:
+		e = &event.EndOfTrackEvent{}
 	default:
-		event = &AlienEvent{
-			metaEventType: metaEventType,
-			data:          data,
-		}
+		v := &event.AlienEvent{}
+		v.SetMetaEventType(metaEventType)
+		v.SetData(data)
+		e = v
 	}
 
 	p.position += sizeOfData
-	p.debugf("parsing event completed (event = %v)", event)
+	p.debugf("parsing event completed (event = %v)", e)
 
-	return event, nil
+	return e, nil
 }
 
 // parseSystemExclusiveEvent parses
-func (p *Parser) parseSystemExclusiveEvent(eventType uint8) (event Event, err error) {
+func (p *Parser) parseSystemExclusiveEvent(eventType uint8) (e event.Event, err error) {
 	p.debugln("start parsing size of system exclusive event")
 
-	q, err := parseQuantity(p.data[p.position:])
+	q, err := quantity.Parse(p.data[p.position:])
 	if err != nil {
 		return nil, err
 	}
 
-	p.position += len(q.value)
+	p.position += len(q.Value())
 	p.debugf("parsing size of system exclusive event completed (%v)", q.Uint32())
 
 	sizeOfData := int(q.Uint32())
 	data := p.data[p.position : p.position+sizeOfData]
 
 	switch eventType {
-	case SystemExclusive:
-		event = &SystemExclusiveEvent{
-			data: data,
-		}
-	case DividedSystemExclusive:
-		event = &DividedSystemExclusiveEvent{
-			data: data,
-		}
+	case constant.SystemExclusive:
+		v := &event.SystemExclusiveEvent{}
+		v.SetData(data)
+		e = v
+	case constant.DividedSystemExclusive:
+		v := &event.DividedSystemExclusiveEvent{}
+		v.SetData(data)
 	}
 
 	p.position += sizeOfData
-	p.debugf("parsing event completed (event = %v)", event)
+	p.debugf("parsing event completed (event = %v)", e)
 
-	return event, nil
+	return e, nil
 }
 
 // parseMIDIControlEvent parses
-func (p *Parser) parseMIDIControlEvent(eventType uint8) (event Event, err error) {
+func (p *Parser) parseMIDIControlEvent(eventType uint8) (e event.Event, err error) {
 	p.debugln("start parsing MIDI control event")
 
 	channel := uint8(eventType) & 0x0f
@@ -362,55 +367,55 @@ func (p *Parser) parseMIDIControlEvent(eventType uint8) (event Event, err error)
 	data := p.data[p.position : p.position+sizeOfData]
 
 	switch eventType & 0xf0 {
-	case NoteOff:
-		event = &NoteOffEvent{
-			channel:  channel,
-			note:     Note(data[0]),
-			velocity: data[1],
-		}
-	case NoteOn:
-		event = &NoteOnEvent{
-			channel:  channel,
-			note:     Note(data[0]),
-			velocity: data[1],
-		}
-	case NoteAfterTouch:
-		event = &NoteAfterTouchEvent{
-			channel:  channel,
-			note:     Note(data[0]),
-			velocity: data[1],
-		}
-	case Controller:
-		event = &ControllerEvent{
-			channel: channel,
-			control: Control(data[0]),
-			value:   data[1],
-		}
-	case ProgramChange:
+	case constant.NoteOff:
+		v := &event.NoteOffEvent{}
+		v.SetChannel(channel)
+		v.SetNote(constant.Note(data[0]))
+		v.SetVelocity(data[1])
+		e = v
+	case constant.NoteOn:
+		v := &event.NoteOnEvent{}
+		v.SetChannel(channel)
+		v.SetNote(constant.Note(data[0]))
+		v.SetVelocity(data[1])
+		e = v
+	case constant.NoteAfterTouch:
+		v := &event.NoteAfterTouchEvent{}
+		v.SetChannel(channel)
+		v.SetNote(constant.Note(data[0]))
+		v.SetVelocity(data[1])
+		e = v
+	case constant.Controller:
+		v := &event.ControllerEvent{}
+		v.SetChannel(channel)
+		v.SetControl(constant.Control(data[0]))
+		v.SetValue(data[1])
+		e = v
+	case constant.ProgramChange:
 		sizeOfData = 1
-		event = &ProgramChangeEvent{
-			channel: channel,
-			program: GM(data[0]),
-		}
-	case ChannelAfterTouch:
+		v := &event.ProgramChangeEvent{}
+		v.SetChannel(channel)
+		v.SetProgram(constant.GM(data[0]))
+		e = v
+	case constant.ChannelAfterTouch:
 		sizeOfData = 1
-		event = &ChannelAfterTouchEvent{
-			channel:  channel,
-			velocity: data[0],
-		}
-	case PitchBend:
+		v := &event.ChannelAfterTouchEvent{}
+		v.SetChannel(channel)
+		v.SetVelocity(data[0])
+		e = v
+	case constant.PitchBend:
 		pitch := uint16(data[0]&0x7f) << 7
 		pitch += uint16(data[1] & 0x7f)
-		event = &PitchBendEvent{
-			channel: channel,
-			pitch:   pitch,
-		}
+		v := &event.PitchBendEvent{}
+		v.SetChannel(channel)
+		v.SetPitch(pitch)
+		e = v
 	}
 
 	p.position += sizeOfData
-	p.debugf("parsing event completed (event = %v)", event)
+	p.debugf("parsing event completed (event = %v)", e)
 
-	return event, nil
+	return e, nil
 }
 
 // SetLogger sets logger.

@@ -2,14 +2,16 @@ package midi
 
 import (
 	"testing"
+
+	"github.com/moutend/go-midi/event"
 )
 
 func TestTrack_Serialize(t *testing.T) {
-	event1, _ := NewTextEvent(nil, []byte("txt1"))
-	event2, _ := NewTextEvent(nil, []byte("txt2"))
-	event3, _ := NewTextEvent(nil, []byte("txt3"))
+	event1, _ := event.NewTextEvent(nil, []byte("txt1"))
+	event2, _ := event.NewTextEvent(nil, []byte("txt2"))
+	event3, _ := event.NewTextEvent(nil, []byte("txt3"))
 	track := &Track{
-		Events: []Event{
+		Events: []event.Event{
 			event1,
 			event2,
 			event3,
