@@ -3,7 +3,7 @@
 package constant
 
 // GM represents GM tones.
-type GM uint16
+type GM uint8
 
 const (
 	AcousticGrandPiano GM = iota
