@@ -43,3 +43,13 @@ func (t *Track) Serialize() []byte {
 
 	return stream
 }
+
+func NewTrack(es ...event.Event) *Track {
+	t := &Track{}
+
+	for _, e := range es {
+		t.Events = append(t.Events, e)
+	}
+
+	return t
+}
