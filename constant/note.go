@@ -2,6 +2,11 @@
 
 package constant
 
+import (
+	"strconv"
+	"strings"
+)
+
 // Note represents a note. The note number 60 corresponds to C3.
 type Note uint8
 
@@ -135,3 +140,46 @@ const (
 	Gb8
 	G8
 )
+
+var noteMap map[string]int = map[string]int{
+	"c":  0,
+	"c#": 1,
+	"db": 1,
+	"d":  2,
+	"d#": 3,
+	"eb": 3,
+	"e":  4,
+	"f":  5,
+	"f#": 6,
+	"gb": 6,
+	"g":  7,
+	"g#": 8,
+	"ab": 8,
+	"a":  9,
+	"a#": 10,
+	"bb": 10,
+	"b":  11,
+}
+
+func ParseNote(s string) (Note, error) {
+	s = strings.ToLower(s)
+	i, err := strconv.Atoi(s)
+	if err == nil {
+		return Note(i), nil
+	}
+	octaveStr := s[len(s)-1 : len(s)-0]
+	octave, err := strconv.Atoi(octaveStr)
+	if err != nil {
+		return Note(0), err
+	}
+	signStr := s[len(s)-2 : len(s)-1]
+	if signStr == "-" {
+		octave *= -1
+	}
+	noteStr := s[0:2]
+	if noteStr[1:2] != "b" {
+		noteStr = noteStr[0:1]
+	}
+	note := noteMap[noteStr] + (octave+2)*12
+	return Note(uint8(note)), nil
+}
