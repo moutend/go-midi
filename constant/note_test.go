@@ -29,4 +29,12 @@ func TestParseNote(t *testing.T) {
 		t.Fatalf("expected: %v actual: %v", expected3, actual3)
 	}
 
+	expected4 := Db3
+	actual4, err := ParseNote("C#3")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if expected4 != actual4 {
+		t.Fatalf("expected: %v actual: %v", expected4, actual4)
+	}
 }

@@ -177,7 +177,7 @@ func ParseNote(s string) (Note, error) {
 		octave *= -1
 	}
 	noteStr := s[0:2]
-	if noteStr[1:2] != "b" {
+	if noteStr[1:2] != "b" && noteStr[1:2] != "#" {
 		noteStr = noteStr[0:1]
 	}
 	note := noteMap[noteStr] + (octave+2)*12
