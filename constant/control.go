@@ -2,6 +2,12 @@
 
 package constant
 
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 // Control represents MIDI controls such as main volume, modulation and etc.
 type Control uint8
 
@@ -71,3 +77,12 @@ const (
 	RegisteredParameterNumberLSB    Control = 0x64
 	RegisteredParameterNumberMSB    Control = 0x65
 )
+
+func ParseControlName(s string) (Control, error) {
+	s = strings.ToLower(s)
+	i, err := strconv.Atoi(s)
+	if err == nil {
+		return Control(i), nil
+	}
+	return 0, fmt.Errorf("invalid")
+}
