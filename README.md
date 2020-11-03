@@ -1,15 +1,7 @@
 go-midi
 ========
 
-[![GitHub release](https://img.shields.io/github/release/moutend/go-midi.svg?style=flat-square)][release]
-[![CircleCI](https://circleci.com/gh/moutend/go-midi.svg?style=svg&circle-token=a6c22e24f682d959debf990b6c9596c7d65f9eb2)][status]
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
-
-[release]: https://github.com/moutend/go-midi/releases
-[status]: https://circleci.com/gh/moutend/go-midi
-[license]: https://github.com/moutend/go-midi/blob/master/LICENSE
-
-Package midi implements reading and writing standard MIDI file.
+`go-midi` provides reading and writing standard MIDI file.
 
 ## Installation
 
@@ -168,6 +160,10 @@ The MIDI files located at `testdata` were composed by Nao. Check her great works
 1. Run `go fmt`
 1. Commit your changes
 1. Open a new Pull Request
+
+## LICENSE
+
+MIT
 
 ## Author
 
