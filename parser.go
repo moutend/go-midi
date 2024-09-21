@@ -181,6 +181,7 @@ func (p *Parser) parseTrack() (*Track, error) {
 
 // parseEvent parses stream begins with delta time.
 func (p *Parser) parseEvent() (event event.Event, err error) {
+	
 	p.debugln("start parsing delta time")
 
 	deltaTime, err := deltatime.Parse(p.data[p.position:])
@@ -215,6 +216,10 @@ func (p *Parser) parseEvent() (event event.Event, err error) {
 		event, err = p.parseSystemExclusiveEvent(eventType)
 	default:
 		event, err = p.parseMIDIControlEvent(eventType)
+	}
+
+	if event == nil {
+		return nil, fmt.Errorf("Event is null")
 	}
 
 	event.DeltaTime().Quantity().SetValue(deltaTime.Quantity().Value())
